@@ -1,26 +1,9 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.exe*
-*.dll
-*.so
-*.dylib
-*.api
-*.csv
-
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-config.yaml
-
-.env
-.idea/
-logs/
-bible_compass_backend
-.github/
-.vscode/
+mongodb:
+  url: "mongodb://localhost:27017/bible_compass"
+  database: "bible_compass"
+Redis:
+  redishost: "localhost"
+  Redisport: "6379"
+server:
+  port: "3000"
+  secret: "mySecretKey"
