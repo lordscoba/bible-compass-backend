@@ -1,7 +1,9 @@
 package admin
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
@@ -67,6 +69,12 @@ func AdminUpdateUser(user model.User, id string) (model.UserResponse, string, in
 		"_id": idHash,
 	}
 
+	// check if id exists
+	idCount, _ := mongodb.MongoCount(constants.UserCollection, idsearch)
+	if idCount < 1 {
+		return model.UserResponse{}, "ID does not exist", 403, errors.New("ID does not exist in database")
+	}
+
 	// save to DB
 	_, err := mongodb.MongoUpdate(idsearch, user, constants.UserCollection)
 	if err != nil {
@@ -79,4 +87,58 @@ func AdminUpdateUser(user model.User, id string) (model.UserResponse, string, in
 		Email:    user.Email,
 	}
 	return userResponse, "", 0, nil
+}
+
+func AdminGetUser() ([]model.User, string, int, error) {
+
+	// get from db
+	result, err := mongodb.MongoGetAll(constants.UserCollection)
+	if err != nil {
+		return []model.User{}, "Unable to save user to database", 500, err
+	}
+
+	var users = make([]model.User, 0)
+	result.All(context.TODO(), &users)
+	return users, "", 0, nil
+}
+
+func AdminGetUserbyId(id string) ([]model.User, string, int, error) {
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+	// get from db
+	result, err := mongodb.MongoGet(constants.UserCollection, search)
+	if err != nil {
+		return []model.User{}, "Unable to save user to database", 500, err
+	}
+
+	var users = make([]model.User, 0)
+	result.All(context.TODO(), &users)
+
+	fmt.Println(users)
+	return users, "", 0, nil
+}
+
+func AdminDeleteUserbyId(id string) (int64, string, int, error) {
+
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+
+	// check if id exists
+	idCount, _ := mongodb.MongoCount(constants.UserCollection, search)
+	if idCount < 1 {
+		return 0, "ID does not exist", 403, errors.New("ID does not exist in database")
+	}
+
+	// get from db
+	result, err := mongodb.MongoDelete(constants.UserCollection, search)
+	if err != nil {
+		return 0, "Unable to save user to database", 500, err
+	}
+
+	fmt.Println(result.DeletedCount)
+	return result.DeletedCount, "", 0, nil
 }

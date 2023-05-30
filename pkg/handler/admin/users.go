@@ -76,3 +76,45 @@ func (base *Controller) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+
+func (base *Controller) GetUsers(c *gin.Context) {
+
+	userResponse, msg, code, err := admin.AdminGetUser()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Users Gotten successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
+
+func (base *Controller) GetUsersById(c *gin.Context) {
+	var id string = c.Param("id")
+	userResponse, msg, code, err := admin.AdminGetUserbyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "User Gotten successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
+
+func (base *Controller) DeleteUsersById(c *gin.Context) {
+	var id string = c.Param("id")
+	userResponse, msg, code, err := admin.AdminDeleteUserbyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Users deleted successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}

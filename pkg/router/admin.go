@@ -16,7 +16,9 @@ func Admin(r *gin.Engine, validate *validator.Validate, ApiVersion string, logge
 	{
 		adminUrl.POST("/admin/createuser", admin.CreateUser)
 		adminUrl.PATCH("/admin/updateuser/:id", admin.UpdateUser)
-		// authUrl.GET("/health", health.Get)
+		adminUrl.GET("/admin/getusers", admin.GetUsers)
+		adminUrl.GET("/admin/getuser/:id", admin.GetUsersById)
+		adminUrl.DELETE("/admin/deleteuser/:id", admin.DeleteUsersById)
 	}
 	return r
 }
