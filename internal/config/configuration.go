@@ -3,8 +3,8 @@ package config
 import (
 	"log"
 
-	"github.com/spf13/viper"
 	"github.com/lordscoba/bible_compass_backend/utility"
+	"github.com/spf13/viper"
 )
 
 type Configuration struct {
