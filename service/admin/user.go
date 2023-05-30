@@ -51,3 +51,32 @@ func AdminCreateUser(user model.User) (model.UserResponse, string, int, error) {
 	}
 	return userResponse, "", 0, nil
 }
+
+func AdminUpdateUser(user model.User, id string) (model.UserResponse, string, int, error) {
+
+	idHash, _ := primitive.ObjectIDFromHex(id)
+
+	if user.Password != "" {
+		hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+		user.Password = string(hash)
+	}
+
+	user.DateUpdated = time.Now().Local()
+
+	idsearch := map[string]any{
+		"_id": idHash,
+	}
+
+	// save to DB
+	_, err := mongodb.MongoUpdate(idsearch, user, constants.UserCollection)
+	if err != nil {
+		return model.UserResponse{}, "Unable to save user to database", 500, err
+	}
+
+	userResponse := model.UserResponse{
+		Username: user.Username,
+		Name:     user.Name,
+		Email:    user.Email,
+	}
+	return userResponse, "", 0, nil
+}

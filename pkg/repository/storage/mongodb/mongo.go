@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
+	"strings"
 
 	"github.com/lordscoba/bible_compass_backend/internal/config"
 	"github.com/lordscoba/bible_compass_backend/utility"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -121,38 +122,74 @@ func MongoGet[T any](collection string, filter map[string]T) (*mongo.Cursor, err
 	return cursor, nil
 }
 
-func MongoUpdate[T any](id string, updateEntries map[string]T, collection string) (*mongo.UpdateResult, error) {
+func MongoUpdate[T, S any](filter map[string]T, updateEntries S, collection string) (*mongo.UpdateResult, error) {
 	c := getCollection(collection)
-	apiCallCount := "api_call_count"
-	user_id, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
+
+	// converting map to bsonD
+	filterBsonD := MapToBsonD(filter)
+
+	// converting map to bsonM
+	updateMap := StructToMap(updateEntries)
+	updateMapData := make(bson.M, 0)
+	for i, j := range updateMap {
+		updateMapData[i] = j
 	}
+	update := bson.M{"$set": updateMapData}
 
-	if value, ok := updateEntries[apiCallCount]; ok {
-		_, err := c.UpdateByID(ctx, user_id, bson.M{"$inc": bson.M{apiCallCount: value}}, options.Update().SetUpsert(true))
-		if err != nil {
-			return nil, err
-		}
-
-		delete(updateEntries, apiCallCount)
-		if len(updateEntries) == 0 {
-			return nil, nil
-		}
-	}
-
-	update := make(bson.M, 0)
-	for i, j := range updateEntries {
-		update[i] = j
-	}
-
-	db_data := bson.M{"$set": update}
-
-	result, err := c.UpdateByID(context.TODO(), user_id, db_data)
+	result, err := c.UpdateOne(ctx, filterBsonD, update)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return result, nil
+}
+
+func StructToMap(inputStruct interface{}) map[string]interface{} {
+	structType := reflect.TypeOf(inputStruct)
+	structValue := reflect.ValueOf(inputStruct)
+
+	if structType.Kind() != reflect.Struct {
+		return nil
+	}
+	resultMap := make(map[string]interface{})
+
+	for i := 1; i < structType.NumField(); i++ {
+		field := structType.Field(i)
+		jsonTag := field.Tag.Get("json")
+		value := structValue.Field(i).Interface()
+		if !IsEmpty(value) {
+			// fmt.Println(jsonTag, value, IsEmpty(value))
+			resultMap[jsonTag] = value
+		}
+	}
+
+	return resultMap
+}
+
+func MapToBsonD[T any](inputMap map[string]T) bson.D {
+	elements := make([]bson.E, 0, len(inputMap))
+
+	for key, value := range inputMap {
+		element := bson.E{Key: key, Value: value}
+		elements = append(elements, element)
+	}
+
+	return elements
+}
+
+func IsEmpty(value interface{}) bool {
+	if value == nil {
+		return true
+	}
+	switch v := reflect.ValueOf(value); v.Kind() {
+	case reflect.String:
+		return strings.TrimSpace(v.String()) == ""
+	case reflect.Array, reflect.Slice, reflect.Map:
+		return v.Len() == 0
+	case reflect.Ptr, reflect.Interface:
+		return v.IsNil()
+	default:
+		return reflect.DeepEqual(value, reflect.Zero(v.Type()).Interface())
+	}
 }

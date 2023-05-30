@@ -24,3 +24,4 @@ logs/
 bible_compass_backend
 .github/
 .vscode/
+*.DS_Store

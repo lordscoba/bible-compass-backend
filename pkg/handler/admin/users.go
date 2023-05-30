@@ -44,3 +44,35 @@ func (base *Controller) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+
+func (base *Controller) UpdateUser(c *gin.Context) {
+
+	var id string = c.Param("id")
+
+	// bind userdetails to User struct
+	var User model.User
+	err := c.Bind(&User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Unable to bind user update details", err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	err = base.Validate.Struct(&User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Validation failed", utility.ValidationResponse(err, base.Validate), nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	userResponse, msg, code, err := admin.AdminUpdateUser(User, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "User updated successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
