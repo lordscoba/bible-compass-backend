@@ -122,6 +122,41 @@ func MongoGet[T any](collection string, filter map[string]T) (*mongo.Cursor, err
 	return cursor, nil
 }
 
+func MongoDelete[T any](collection string, filter map[string]T) (*mongo.DeleteResult, error) {
+	c := getCollection(collection)
+
+	f := make(bson.M)
+
+	if len(filter) == 1 {
+		for k, v := range filter {
+			f = bson.M{k: v}
+		}
+	} else if len(filter) > 1 {
+		tf := make([]bson.M, 0, len(filter))
+		for k, v := range filter {
+			tf = append(tf, bson.M{k: v})
+		}
+
+		f = bson.M{"$and": tf}
+	}
+
+	cursor, err := c.DeleteOne(ctx, f)
+	if err != nil {
+		return nil, err
+	}
+	return cursor, nil
+}
+
+func MongoGetAll(collection string) (*mongo.Cursor, error) {
+	c := getCollection(collection)
+	f := make(bson.M)
+	cursor, err := c.Find(ctx, f)
+	if err != nil {
+		return nil, err
+	}
+	return cursor, nil
+}
+
 func MongoUpdate[T, S any](filter map[string]T, updateEntries S, collection string) (*mongo.UpdateResult, error) {
 	c := getCollection(collection)
 
