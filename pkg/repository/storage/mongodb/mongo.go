@@ -8,6 +8,7 @@ import (
 	"github.com/lordscoba/bible_compass_backend/internal/config"
 	"github.com/lordscoba/bible_compass_backend/utility"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -45,16 +46,16 @@ func ConnectToDB() *mongo.Client {
 	return mongoClient
 }
 
-// 1
-// var Client *mongo.Client = ConnectToDB()
-
 // getting database collections
-func GetCollection(client *mongo.Client, databaseName, collectionName string) *mongo.Collection {
-	collection := client.Database(databaseName).Collection(collectionName)
-	return collection
+func getCollection(collection string) *mongo.Collection {
+	databaseName := config.GetConfig().Mongodb.Database
+	database := mongoClient.Database(databaseName)
+	c := database.Collection(collection)
+
+	return c
 }
 
-func MongoPost(collection string, data interface{}) (*mongo.InsertOneResult, error) {
+func MongoPost[T any](collection string, data T) (*mongo.InsertOneResult, error) {
 	c := getCollection(collection)
 
 	result, err := c.InsertOne(ctx, data)
@@ -65,7 +66,7 @@ func MongoPost(collection string, data interface{}) (*mongo.InsertOneResult, err
 	return result, nil
 }
 
-func MongoGetOne(collection string, filter map[string]interface{}) (*mongo.SingleResult, error) {
+func MongoGetOne[T any](collection string, filter map[string]T) (*mongo.SingleResult, error) {
 	c := getCollection(collection)
 	f := make(bson.M)
 	for k, v := range filter {
@@ -80,7 +81,22 @@ func MongoGetOne(collection string, filter map[string]interface{}) (*mongo.Singl
 	return result, nil
 }
 
-func MongoGet(collection string, filter map[string]interface{}) (*mongo.Cursor, error) {
+func MongoCount[T any](collection string, filter map[string]T) (int64, error) {
+	c := getCollection(collection)
+	f := make(bson.M)
+	for k, v := range filter {
+		f = bson.M{k: v}
+	}
+
+	result, err := c.CountDocuments(context.TODO(), f)
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
+}
+
+func MongoGet[T any](collection string, filter map[string]T) (*mongo.Cursor, error) {
 	c := getCollection(collection)
 
 	f := make(bson.M)
@@ -102,30 +118,41 @@ func MongoGet(collection string, filter map[string]interface{}) (*mongo.Cursor, 
 	if err != nil {
 		return nil, err
 	}
-
 	return cursor, nil
 }
 
-func getCollection(collection string) *mongo.Collection {
-	databaseName := config.GetConfig().Mongodb.Database
-	database := mongoClient.Database(databaseName)
-	c := database.Collection(collection)
-
-	return c
-}
-
-// Delete
-
-func SelectFromCollection(ctx context.Context, database, collection string, filter bson.M) (*mongo.Cursor, error) {
-	modelCollection := GetCollection(mongoClient, database, collection)
-	cursor, err := modelCollection.Find(ctx, filter)
+func MongoUpdate[T any](id string, updateEntries map[string]T, collection string) (*mongo.UpdateResult, error) {
+	c := getCollection(collection)
+	apiCallCount := "api_call_count"
+	user_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return cursor, err
+		return nil, err
 	}
-	return cursor, nil
+
+	if value, ok := updateEntries[apiCallCount]; ok {
+		_, err := c.UpdateByID(ctx, user_id, bson.M{"$inc": bson.M{apiCallCount: value}}, options.Update().SetUpsert(true))
+		if err != nil {
+			return nil, err
+		}
+
+		delete(updateEntries, apiCallCount)
+		if len(updateEntries) == 0 {
+			return nil, nil
+		}
+	}
+
+	update := make(bson.M, 0)
+	for i, j := range updateEntries {
+		update[i] = j
+	}
+
+	db_data := bson.M{"$set": update}
+
+	result, err := c.UpdateByID(context.TODO(), user_id, db_data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
-
-
-
-
-

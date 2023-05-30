@@ -1,5 +1,5 @@
 mongodb:
-  url: "mongodb://localhost:27017/bible_compass"
+  url: "mongodb://localhost:27017/"
   database: "bible_compass"
 Redis:
   redishost: "localhost"
