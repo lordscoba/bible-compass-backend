@@ -15,7 +15,7 @@ func Admin(r *gin.Engine, validate *validator.Validate, ApiVersion string, logge
 	adminUrl := r.Group(fmt.Sprintf("/api/%v", ApiVersion))
 	{
 		adminUrl.POST("/admin/createuser", admin.CreateUser)
-		adminUrl.PATCH("/admin/updateuser", admin.UpdateUser)
+		adminUrl.PATCH("/admin/updateuser/:id", admin.UpdateUser)
 		// authUrl.GET("/health", health.Get)
 	}
 	return r

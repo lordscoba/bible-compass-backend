@@ -47,6 +47,8 @@ func (base *Controller) CreateUser(c *gin.Context) {
 
 func (base *Controller) UpdateUser(c *gin.Context) {
 
+	var id string = c.Param("id")
+
 	// bind userdetails to User struct
 	var User model.User
 	err := c.Bind(&User)
@@ -63,14 +65,14 @@ func (base *Controller) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	// userResponse, msg, code, err := admin.AdminCreateUser(User)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	userResponse, msg, code, err := admin.AdminUpdateUser(User, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	// rd := utility.BuildSuccessResponse(http.StatusCreated, "user created successfully", userResponse)
-	// c.JSON(http.StatusOK, rd)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "User updated successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
 
 }
