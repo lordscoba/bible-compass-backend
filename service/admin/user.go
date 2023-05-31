@@ -9,6 +9,7 @@ import (
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
 	"github.com/lordscoba/bible_compass_backend/pkg/repository/storage/mongodb"
+	"github.com/lordscoba/bible_compass_backend/utility"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -110,7 +111,7 @@ func AdminGetUserbyId(id string) ([]model.User, string, int, error) {
 	// get from db
 	result, err := mongodb.MongoGet(constants.UserCollection, search)
 	if err != nil {
-		return []model.User{}, "Unable to save user to database", 500, err
+		return []model.User{}, "Unable to get user from database", 500, err
 	}
 
 	var users = make([]model.User, 0)
@@ -141,4 +142,69 @@ func AdminDeleteUserbyId(id string) (int64, string, int, error) {
 
 	fmt.Println(result.DeletedCount)
 	return result.DeletedCount, "", 0, nil
+}
+
+func AdminUsersInfo() (model.UserInfoResponse, string, int, error) {
+	// total users
+	search := map[string]any{}
+	TotalUsers, err := mongodb.MongoCount(constants.UserCollection, search)
+	if err != nil {
+		return model.UserInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total subscribed users
+	searchSubscribed := map[string]any{}
+	SubscribedUsers, err := mongodb.MongoCount(constants.UserCollection, searchSubscribed)
+	if err != nil {
+		return model.UserInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total verified
+	searchVerified := map[string]any{
+		"is_verified": true,
+	}
+	VerifiedUsers, err := mongodb.MongoCount(constants.UserCollection, searchVerified)
+	if err != nil {
+		return model.UserInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	userInfo := model.UserInfoResponse{
+		TotalUsers:      TotalUsers,
+		SubscribedUsers: SubscribedUsers,
+		VerifiedUsers:   VerifiedUsers,
+	}
+
+	return userInfo, "", 0, nil
+}
+
+func AdminVerifyUser(user model.User) (model.UserResponse, string, int, error) {
+
+	// check if required data is entered
+	if utility.IsEmpty(user.IsVerified) {
+		return model.UserResponse{}, "Enter verification", 403, errors.New("verification is missing")
+	}
+
+	user.DateUpdated = time.Now().Local()
+	usernamesearch := map[string]any{
+		"username": user.Username,
+	}
+
+	// check if id exists
+	idCount, _ := mongodb.MongoCount(constants.UserCollection, usernamesearch)
+	if idCount < 1 {
+		return model.UserResponse{}, "user does not exist", 403, errors.New("user does not exist in database")
+	}
+
+	// save to DB
+	_, err := mongodb.MongoUpdate(usernamesearch, user, constants.UserCollection)
+	if err != nil {
+		return model.UserResponse{}, "Unable to save user to database", 500, err
+	}
+
+	userResponse := model.UserResponse{
+		Username: user.Username,
+		Name:     user.Name,
+		Email:    user.Email,
+	}
+	return userResponse, "", 0, nil
 }

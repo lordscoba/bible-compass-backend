@@ -27,3 +27,9 @@ type UserResponse struct {
 	TokenType string
 	LastLogin time.Time
 }
+
+type UserInfoResponse struct {
+	TotalUsers      int64
+	SubscribedUsers int64
+	VerifiedUsers   int64
+}

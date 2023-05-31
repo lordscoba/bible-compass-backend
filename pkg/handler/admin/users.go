@@ -118,3 +118,49 @@ func (base *Controller) DeleteUsersById(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+
+func (base *Controller) UsersInfo(c *gin.Context) {
+
+	userResponse, msg, code, err := admin.AdminUsersInfo()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Users Info successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
+
+func (base *Controller) VerifyUser(c *gin.Context) {
+
+	// var id string = c.Param("id")
+
+	// bind userdetails to User struct
+	var User model.User
+	err := c.Bind(&User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Unable to bind user update details", err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	err = base.Validate.Struct(&User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Validation failed", utility.ValidationResponse(err, base.Validate), nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	userResponse, msg, code, err := admin.AdminVerifyUser(User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "User verified successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
