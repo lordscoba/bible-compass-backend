@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"reflect"
-	"strings"
 
 	"github.com/lordscoba/bible_compass_backend/internal/config"
 	"github.com/lordscoba/bible_compass_backend/utility"
@@ -161,10 +159,10 @@ func MongoUpdate[T, S any](filter map[string]T, updateEntries S, collection stri
 	c := getCollection(collection)
 
 	// converting map to bsonD
-	filterBsonD := MapToBsonD(filter)
+	filterBsonD := utility.MapToBsonD(filter)
 
 	// converting map to bsonM
-	updateMap := StructToMap(updateEntries)
+	updateMap := utility.StructToMap(updateEntries)
 	updateMapData := make(bson.M, 0)
 	for i, j := range updateMap {
 		updateMapData[i] = j
@@ -178,53 +176,4 @@ func MongoUpdate[T, S any](filter map[string]T, updateEntries S, collection stri
 	}
 
 	return result, nil
-}
-
-func StructToMap(inputStruct interface{}) map[string]interface{} {
-	structType := reflect.TypeOf(inputStruct)
-	structValue := reflect.ValueOf(inputStruct)
-
-	if structType.Kind() != reflect.Struct {
-		return nil
-	}
-	resultMap := make(map[string]interface{})
-
-	for i := 1; i < structType.NumField(); i++ {
-		field := structType.Field(i)
-		jsonTag := field.Tag.Get("json")
-		value := structValue.Field(i).Interface()
-		if !IsEmpty(value) {
-			// fmt.Println(jsonTag, value, IsEmpty(value))
-			resultMap[jsonTag] = value
-		}
-	}
-
-	return resultMap
-}
-
-func MapToBsonD[T any](inputMap map[string]T) bson.D {
-	elements := make([]bson.E, 0, len(inputMap))
-
-	for key, value := range inputMap {
-		element := bson.E{Key: key, Value: value}
-		elements = append(elements, element)
-	}
-
-	return elements
-}
-
-func IsEmpty(value interface{}) bool {
-	if value == nil {
-		return true
-	}
-	switch v := reflect.ValueOf(value); v.Kind() {
-	case reflect.String:
-		return strings.TrimSpace(v.String()) == ""
-	case reflect.Array, reflect.Slice, reflect.Map:
-		return v.Len() == 0
-	case reflect.Ptr, reflect.Interface:
-		return v.IsNil()
-	default:
-		return reflect.DeepEqual(value, reflect.Zero(v.Type()).Interface())
-	}
 }
