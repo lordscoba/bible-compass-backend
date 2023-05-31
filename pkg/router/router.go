@@ -28,6 +28,9 @@ func Setup(validate *validator.Validate, logger *utility.Logger) *gin.Engine {
 	Admin(r, validate, ApiVersion, logger)
 	Auth(r, validate, ApiVersion, logger)
 	Profile(r, validate, ApiVersion, logger)
+	Subscription(r, validate, ApiVersion, logger)
+	Keywords(r, validate, ApiVersion, logger)
+	Category(r, validate, ApiVersion, logger)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
