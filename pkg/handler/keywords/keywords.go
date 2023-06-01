@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
+	"github.com/lordscoba/bible_compass_backend/service/keywords"
 	"github.com/lordscoba/bible_compass_backend/utility"
 )
 
@@ -15,6 +16,8 @@ type Controller struct {
 }
 
 func (base *Controller) CreateKeywords(c *gin.Context) {
+
+	var id string = c.Param("id")
 
 	// bind userdetails to User struct
 	var Keywords model.Keywords
@@ -32,21 +35,21 @@ func (base *Controller) CreateKeywords(c *gin.Context) {
 		return
 	}
 
-	// KeywordsResponse, msg, code, err := admin.AdminCreateKeywords(Category)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	KeywordsResponse, msg, code, err := keywords.AdminCreateKeywords(Keywords, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "keywords created successfully", Keywords)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "keywords created successfully", KeywordsResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) UpdateKeywords(c *gin.Context) {
 
-	var _ string = c.Param("id")
+	var id string = c.Param("id")
 
 	// bind userdetails to User struct
 	var Keywords model.Keywords
@@ -64,14 +67,14 @@ func (base *Controller) UpdateKeywords(c *gin.Context) {
 		return
 	}
 
-	// KeywordsResponse, msg, code, err := admin.AdminUpdateKeywords(Category, id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	KeywordsResponse, msg, code, err := keywords.AdminUpdateKeywords(Keywords, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "Keywords updated successfully", Keywords)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "Keywords updated successfully", KeywordsResponse)
 	c.JSON(http.StatusOK, rd)
 
 }

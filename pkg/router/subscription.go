@@ -14,7 +14,7 @@ func Subscription(r *gin.Engine, validate *validator.Validate, ApiVersion string
 
 	keywordsUrl := r.Group(fmt.Sprintf("/api/%v", ApiVersion))
 	{
-		keywordsUrl.POST("/admin/createsubscription", subscription.CreateSubscription)
+		keywordsUrl.POST("/admin/createsubscription/:id", subscription.CreateSubscription)
 		keywordsUrl.PATCH("/admin/updatesubscription/:id", subscription.UpdateSubscription)
 		keywordsUrl.DELETE("/admin/deletesubscription/:id", subscription.DeleteSubscriptionById)
 		keywordsUrl.GET("/admin/getsubscription", subscription.GetSubscription)

@@ -15,6 +15,13 @@ type Category struct {
 	DateUpdated    time.Time          `bson:"date_updated" json:"date_updated"`
 }
 
+type CategoryResponse struct {
+	CategoryName   string    `bson:"category_name" json:"category_name"`
+	ForSubscribers bool      `bson:"for_subscribers" json:"for_subscribers"`
+	Keywords       []string  `bson:"keywords" json:"keywords"`
+	DateCreated    time.Time `bson:"date_created" json:"date_created"`
+}
+
 type Keywords struct {
 	ID             primitive.ObjectID `bson:"_id, omitempty"`
 	CategoryID     primitive.ObjectID `bson:"category_id" json:"category_id"`
@@ -23,6 +30,14 @@ type Keywords struct {
 	BibleVerse     []BibleVerse       `bson:"bible_verse" json:"bible_verse"`
 	DateCreated    time.Time          `bson:"date_created" json:"date_created"`
 	DateUpdated    time.Time          `bson:"date_updated" json:"date_updated"`
+	Favorite       bool
+}
+
+type KeywordsResponse struct {
+	Keyword        string       `bson:"keyword" json:"keyword" validate:"required"`
+	ForSubscribers bool         `bson:"for_subscribers" json:"for_subscribers"`
+	BibleVerse     []BibleVerse `bson:"bible_verse" json:"bible_verse"`
+	DateCreated    time.Time    `bson:"date_created" json:"date_created"`
 	Favorite       bool
 }
 
