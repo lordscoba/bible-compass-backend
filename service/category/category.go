@@ -1,7 +1,9 @@
 package category
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
@@ -70,4 +72,91 @@ func AdminUpdatecategory(category model.Category, id string) (model.CategoryResp
 		DateCreated:    category.DateCreated,
 	}
 	return categoryResponse, "", 0, nil
+}
+
+func AdminGetCategory() ([]model.Category, string, int, error) {
+
+	// get from db
+	result, err := mongodb.MongoGetAll(constants.CategoryCollection)
+	if err != nil {
+		return []model.Category{}, "Unable to save category to database", 500, err
+	}
+
+	var category = make([]model.Category, 0)
+	result.All(context.TODO(), &category)
+	return category, "", 0, nil
+}
+
+func AdminGetCategorybyId(id string) (model.Category, string, int, error) {
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+	// get from db
+	var resultOne model.Category
+	result, err := mongodb.MongoGetOne(constants.CategoryCollection, search)
+	if err != nil {
+		return model.Category{}, "Unable to get category from database", 500, err
+	}
+	result.Decode(&resultOne)
+	// get from db end
+
+	fmt.Println(resultOne)
+	return resultOne, "", 0, nil
+}
+
+func AdminDeleteCategorybyId(id string) (int64, string, int, error) {
+
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+
+	// check if id exists
+	idCount, _ := mongodb.MongoCount(constants.CategoryCollection, search)
+	if idCount < 1 {
+		return 0, "Category does not exist", 403, errors.New("category does not exist in database")
+	}
+
+	// get from db
+	result, err := mongodb.MongoDelete(constants.CategoryCollection, search)
+	if err != nil {
+		return 0, "Unable to save category to database", 500, err
+	}
+
+	fmt.Println(result.DeletedCount)
+	return result.DeletedCount, "", 0, nil
+}
+
+func AdminCategoryInfo() (model.CategoryInfoResponse, string, int, error) {
+	// total users
+	search := map[string]any{}
+	TotalCategory, err := mongodb.MongoCount(constants.CategoryCollection, search)
+	if err != nil {
+		return model.CategoryInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total subscribers category
+	searchSubscribed := map[string]any{
+		"for_subscribers": true,
+	}
+	SubscribersCategory, err := mongodb.MongoCount(constants.CategoryCollection, searchSubscribed)
+	if err != nil {
+		return model.CategoryInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total keywords
+	keywordsSearch := map[string]any{}
+	TotalKeyWords, err := mongodb.MongoCount(constants.CategoryCollection, keywordsSearch)
+	if err != nil {
+		return model.CategoryInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	CategoryInfo := model.CategoryInfoResponse{
+		TotalCategory:       TotalCategory,
+		SubscribersCategory: SubscribersCategory,
+		TotalKeyWords:       TotalKeyWords,
+	}
+
+	return CategoryInfo, "", 0, nil
 }

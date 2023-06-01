@@ -80,56 +80,56 @@ func (base *Controller) UpdateSubscription(c *gin.Context) {
 
 func (base *Controller) GetSubscription(c *gin.Context) {
 
-	// SubscriptionResponse, msg, code, err := admin.AdminGetSubscription()
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	subscriptionResponse, msg, code, err := subscription.AdminGetSubscription()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Gotten successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Gotten successfully", subscriptionResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) GetSubscriptionById(c *gin.Context) {
-	var _ string = c.Param("id")
-	// SubscriptionResponse, msg, code, err := admin.AdminGetSubscriptionbyId(id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	var id string = c.Param("id")
+	subscriptionResponse, msg, code, err := subscription.AdminGetSubscriptionbyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Gotten successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Gotten successfully", subscriptionResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) DeleteSubscriptionById(c *gin.Context) {
-	var _ string = c.Param("id")
-	// SubscriptionResponse, msg, code, err := admin.AdminDeleteSubscriptionbyId(id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	var id string = c.Param("id")
+	subscriptionResponse, msg, code, err := subscription.AdminDeleteSubscriptionbyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription deleted successfully", "Put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription deleted successfully", subscriptionResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) SubscriptionInfo(c *gin.Context) {
 
-	// SubscriptionResponse, msg, code, err := admin.AdminSubscriptionInfo()
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	SubscriptionResponse, msg, code, err := subscription.AdminSubscriptionInfo()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Info successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Info successfully", SubscriptionResponse)
 	c.JSON(http.StatusOK, rd)
 
 }

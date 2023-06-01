@@ -27,3 +27,9 @@ type SubscriptionResponse struct {
 	Duration     time.Duration `bson:"duration" json:"duration"`
 	DateExpiring time.Time     `bson:"date_expiring" json:"date_expiring"`
 }
+
+type SubscriptionInfoResponse struct {
+	TotalSubscription    int64
+	ActiveSubscription   int64
+	InActiveSubscription int64
+}

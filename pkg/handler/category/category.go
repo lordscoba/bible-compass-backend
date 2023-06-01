@@ -79,56 +79,56 @@ func (base *Controller) UpdateCategory(c *gin.Context) {
 
 func (base *Controller) GetCategory(c *gin.Context) {
 
-	// userResponse, msg, code, err := admin.AdminGetUser()
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	categoryResponse, msg, code, err := category.AdminGetCategory()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Users Gotten successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Category Gotten successfully", categoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) GetCategoryById(c *gin.Context) {
-	var _ string = c.Param("id")
-	// userResponse, msg, code, err := admin.AdminGetUserbyId(id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	var id string = c.Param("id")
+	categoryResponse, msg, code, err := category.AdminGetCategorybyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "User Gotten successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "User Gotten successfully", categoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) DeleteCategoryById(c *gin.Context) {
-	var _ string = c.Param("id")
-	// CategoryResponse, msg, code, err := admin.AdminDeleteCategorybyId(id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	var id string = c.Param("id")
+	categoryResponse, msg, code, err := category.AdminDeleteCategorybyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Category deleted successfully", "Put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Category deleted successfully", categoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) CategoryInfo(c *gin.Context) {
 
-	// CategoryResponse, msg, code, err := admin.AdminCategoryInfo()
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	CategoryResponse, msg, code, err := category.AdminCategoryInfo()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Category Info successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Category Info successfully", CategoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }

@@ -1,7 +1,9 @@
 package subscription
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
@@ -63,19 +65,15 @@ func AdminUpdateSubscription(subscription model.Subscription, id string) (model.
 	}
 
 	// check if id exists
-	idCount, _ := mongodb.MongoCount(constants.UserCollection, idsearch)
+	idCount, _ := mongodb.MongoCount(constants.SubscriptionCollection, idsearch)
 	if idCount < 1 {
-		return model.SubscriptionResponse{}, "user does not exist", 403, errors.New("user does not exist in database")
+		return model.SubscriptionResponse{}, "subscription does not exist", 403, errors.New("user does not exist in database")
 	}
 
 	subscription.UserID = idHash
 	subscription.DateUpdated = time.Now().Local()
-	idSearchCollection := map[string]any{
-		"user_id": idHash,
-		// "username": "lordscoba",
-	}
 	// save to DB
-	_, err := mongodb.MongoUpdate(idSearchCollection, subscription, constants.SubscriptionCollection)
+	_, err := mongodb.MongoUpdate(idsearch, subscription, constants.SubscriptionCollection)
 	if err != nil {
 		return model.SubscriptionResponse{}, "Unable to save user to database", 500, err
 	}
@@ -89,4 +87,93 @@ func AdminUpdateSubscription(subscription model.Subscription, id string) (model.
 		Type:         subscription.Type,
 	}
 	return SubscriptionResponse, "", 0, nil
+}
+
+func AdminGetSubscription() ([]model.Subscription, string, int, error) {
+
+	// get from db
+	result, err := mongodb.MongoGetAll(constants.SubscriptionCollection)
+	if err != nil {
+		return []model.Subscription{}, "Unable to save subscription to database", 500, err
+	}
+
+	var subscription = make([]model.Subscription, 0)
+	result.All(context.TODO(), &subscription)
+	return subscription, "", 0, nil
+}
+
+func AdminGetSubscriptionbyId(id string) (model.Subscription, string, int, error) {
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+	// get from db
+	var resultOne model.Subscription
+	result, err := mongodb.MongoGetOne(constants.SubscriptionCollection, search)
+	if err != nil {
+		return model.Subscription{}, "Unable to get subscription from database", 500, err
+	}
+	result.Decode(&resultOne)
+	// get from db end
+
+	fmt.Println(resultOne)
+	return resultOne, "", 0, nil
+}
+
+func AdminDeleteSubscriptionbyId(id string) (int64, string, int, error) {
+
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+
+	// check if id exists
+	idCount, _ := mongodb.MongoCount(constants.SubscriptionCollection, search)
+	if idCount < 1 {
+		return 0, "Subscription does not exist", 403, errors.New("subscription does not exist in database")
+	}
+
+	// get from db
+	result, err := mongodb.MongoDelete(constants.SubscriptionCollection, search)
+	if err != nil {
+		return 0, "Unable to save subscription to database", 500, err
+	}
+
+	fmt.Println(result.DeletedCount)
+	return result.DeletedCount, "", 0, nil
+}
+
+func AdminSubscriptionInfo() (model.SubscriptionInfoResponse, string, int, error) {
+	// total users
+	search := map[string]any{}
+	TotalSubscription, err := mongodb.MongoCount(constants.SubscriptionCollection, search)
+	if err != nil {
+		return model.SubscriptionInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total subscribers category
+	StatusSearch1 := map[string]any{
+		"status": true,
+	}
+	ActiveSubscription, err := mongodb.MongoCount(constants.SubscriptionCollection, StatusSearch1)
+	if err != nil {
+		return model.SubscriptionInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total keywords
+	StatusSearch2 := map[string]any{
+		"status": false,
+	}
+	InActiveSubscription, err := mongodb.MongoCount(constants.SubscriptionCollection, StatusSearch2)
+	if err != nil {
+		return model.SubscriptionInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	CategoryInfo := model.SubscriptionInfoResponse{
+		TotalSubscription:    TotalSubscription,
+		ActiveSubscription:   ActiveSubscription,
+		InActiveSubscription: InActiveSubscription,
+	}
+
+	return CategoryInfo, "", 0, nil
 }
