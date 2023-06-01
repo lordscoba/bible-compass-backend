@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
+	"github.com/lordscoba/bible_compass_backend/service/subscription"
 	"github.com/lordscoba/bible_compass_backend/utility"
 )
 
@@ -16,6 +17,7 @@ type Controller struct {
 
 func (base *Controller) CreateSubscription(c *gin.Context) {
 
+	var id string = c.Param("id")
 	// bind userdetails to User struct
 	var Subscription model.Subscription
 	err := c.Bind(&Subscription)
@@ -32,46 +34,46 @@ func (base *Controller) CreateSubscription(c *gin.Context) {
 		return
 	}
 
-	// CategoryResponse, msg, code, err := admin.AdminCreateUser(Category)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	SubscriptionResponse, msg, code, err := subscription.AdminCreateSubscription(Subscription, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "Subscription created successfully", Subscription)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "Subscription created successfully", SubscriptionResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) UpdateSubscription(c *gin.Context) {
 
-	var _ string = c.Param("id")
+	var id string = c.Param("id")
 
 	// bind userdetails to User struct
-	var Keywords model.Keywords
-	err := c.Bind(&Keywords)
+	var Subscription model.Subscription
+	err := c.Bind(&Subscription)
 	if err != nil {
 		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Unable to bind category update details", err, nil)
 		c.JSON(http.StatusBadRequest, rd)
 		return
 	}
 
-	err = base.Validate.Struct(&Keywords)
+	err = base.Validate.Struct(&Subscription)
 	if err != nil {
 		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Validation failed", utility.ValidationResponse(err, base.Validate), nil)
 		c.JSON(http.StatusBadRequest, rd)
 		return
 	}
 
-	// CategoryResponse, msg, code, err := admin.AdminUpdateUser(Category, id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	SubscriptionResponse, msg, code, err := subscription.AdminUpdateSubscription(Subscription, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "subscription updated successfully", Keywords)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "subscription updated successfully", SubscriptionResponse)
 	c.JSON(http.StatusOK, rd)
 
 }

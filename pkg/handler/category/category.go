@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
+	"github.com/lordscoba/bible_compass_backend/service/category"
 	"github.com/lordscoba/bible_compass_backend/utility"
 )
 
@@ -32,21 +33,21 @@ func (base *Controller) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	// CategoryResponse, msg, code, err := admin.AdminCreateUser(Category)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	CategoryResponse, msg, code, err := category.AdminCreateCategory(Category)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "user created successfully", Category)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "user created successfully", CategoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) UpdateCategory(c *gin.Context) {
 
-	var _ string = c.Param("id")
+	var id string = c.Param("id")
 
 	// bind userdetails to User struct
 	var Category model.Category
@@ -64,14 +65,14 @@ func (base *Controller) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	// CategoryResponse, msg, code, err := admin.AdminUpdateUser(Category, id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	CategoryResponse, msg, code, err := category.AdminUpdatecategory(Category, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "Category updated successfully", Category)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "Category updated successfully", CategoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }

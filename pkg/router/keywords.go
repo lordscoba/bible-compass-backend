@@ -14,7 +14,7 @@ func Keywords(r *gin.Engine, validate *validator.Validate, ApiVersion string, lo
 
 	keywordsUrl := r.Group(fmt.Sprintf("/api/%v", ApiVersion))
 	{
-		keywordsUrl.POST("/admin/createkeywords", keywords.CreateKeywords)
+		keywordsUrl.POST("/admin/createkeywords/:id", keywords.CreateKeywords)
 		keywordsUrl.PATCH("/admin/updatekeywords/:id", keywords.UpdateKeywords)
 		keywordsUrl.DELETE("/admin/deletekeywords/:id", keywords.DeleteKeywordsById)
 		keywordsUrl.GET("/admin/getkeywords", keywords.GetKeywords)
