@@ -38,7 +38,7 @@ type KeywordsResponse struct {
 	ForSubscribers bool         `bson:"for_subscribers" json:"for_subscribers"`
 	BibleVerse     []BibleVerse `bson:"bible_verse" json:"bible_verse"`
 	DateCreated    time.Time    `bson:"date_created" json:"date_created"`
-	Favorite       bool
+	Favorite       bool         `bson:"favorite" json:"favorite"`
 }
 
 type BibleVerse struct {
@@ -48,4 +48,16 @@ type BibleVerse struct {
 	Passage       string             `bson:"passage" json:"passage"`
 	Explanation   string             `bson:"explanation" json:"explanation"`
 	Like          bool               `bson:"like" json:"like"`
+}
+
+type KeywordsInfoResponse struct {
+	TotalKeywords       int64
+	SubscribersKeywords int64
+	TotalBibleVerse     int64
+}
+
+type CategoryInfoResponse struct {
+	TotalCategory       int64
+	SubscribersCategory int64
+	TotalKeyWords       int64
 }

@@ -1,7 +1,9 @@
 package keywords
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
@@ -21,6 +23,15 @@ func AdminCreateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 	idCount, _ := mongodb.MongoCount(constants.CategoryCollection, idsearch)
 	if idCount < 1 {
 		return model.KeywordsResponse{}, "category does not exist", 403, errors.New("user does not exist in database")
+	}
+
+	keysearch := map[string]any{
+		"keyword": keywords.Keyword,
+	}
+	// check if key exists
+	keyCount, _ := mongodb.MongoCount(constants.KeywordCollection, keysearch)
+	if keyCount >= 1 {
+		return model.KeywordsResponse{}, "key already exist", 403, errors.New("key already exist in database")
 	}
 
 	keywords.ForSubscribers = false
@@ -82,4 +93,93 @@ func AdminUpdateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 		Favorite:       keywords.Favorite,
 	}
 	return KeywordsResponse, "", 0, nil
+}
+
+func AdminGetKeywords() ([]model.Keywords, string, int, error) {
+
+	// get from db
+	result, err := mongodb.MongoGetAll(constants.KeywordCollection)
+	if err != nil {
+		return []model.Keywords{}, "Unable to save keywords to database", 500, err
+	}
+
+	var keywords = make([]model.Keywords, 0)
+	result.All(context.TODO(), &keywords)
+	return keywords, "", 0, nil
+}
+
+func AdminGetkeywordsbyId(id string) (model.Keywords, string, int, error) {
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+	// get from db
+	var resultOne model.Keywords
+	result, err := mongodb.MongoGetOne(constants.KeywordCollection, search)
+	if err != nil {
+		return model.Keywords{}, "Unable to get keywords from database", 500, err
+	}
+	result.Decode(&resultOne)
+	// get from db end
+
+	fmt.Println(resultOne)
+	return resultOne, "", 0, nil
+}
+
+func AdminDeletekeywordsbyId(id string) (int64, string, int, error) {
+
+	idHash, _ := primitive.ObjectIDFromHex(id)
+	search := map[string]any{
+		"_id": idHash,
+	}
+
+	// check if id exists
+	idCount, _ := mongodb.MongoCount(constants.KeywordCollection, search)
+	if idCount < 1 {
+		return 0, "keywords does not exist", 403, errors.New("keywords does not exist in database")
+	}
+
+	// get from db
+	result, err := mongodb.MongoDelete(constants.KeywordCollection, search)
+	if err != nil {
+		return 0, "Unable to save keywords to database", 500, err
+	}
+
+	fmt.Println(result.DeletedCount)
+	return result.DeletedCount, "", 0, nil
+}
+
+func AdminKeywordsInfo() (model.KeywordsInfoResponse, string, int, error) {
+	// total users
+	search := map[string]any{}
+	TotalKeywords, err := mongodb.MongoCount(constants.KeywordCollection, search)
+	if err != nil {
+		return model.KeywordsInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total subscribers category
+	StatusSearch1 := map[string]any{
+		"for_subscribers": true,
+	}
+	SubscribersKeywords, err := mongodb.MongoCount(constants.KeywordCollection, StatusSearch1)
+	if err != nil {
+		return model.KeywordsInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total keywords
+	StatusSearch2 := map[string]any{
+		"status": false,
+	}
+	TotalBibleVerse, err := mongodb.MongoCount(constants.KeywordCollection, StatusSearch2)
+	if err != nil {
+		return model.KeywordsInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	KeywordsInfo := model.KeywordsInfoResponse{
+		TotalKeywords:       TotalKeywords,
+		SubscribersKeywords: SubscribersKeywords,
+		TotalBibleVerse:     TotalBibleVerse,
+	}
+
+	return KeywordsInfo, "", 0, nil
 }

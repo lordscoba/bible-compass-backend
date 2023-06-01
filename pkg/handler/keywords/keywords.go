@@ -81,56 +81,56 @@ func (base *Controller) UpdateKeywords(c *gin.Context) {
 
 func (base *Controller) GetKeywords(c *gin.Context) {
 
-	// KeywordsResponse, msg, code, err := admin.AdminGetKeywords()
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	keywordsResponse, msg, code, err := keywords.AdminGetKeywords()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords Gotten successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords Gotten successfully", keywordsResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) GetKeywordsById(c *gin.Context) {
-	var _ string = c.Param("id")
-	// keywordsResponse, msg, code, err := admin.AdminGetKeywordsbyId(id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	var id string = c.Param("id")
+	keywordsResponse, msg, code, err := keywords.AdminGetkeywordsbyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords Gotten successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords Gotten successfully", keywordsResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) DeleteKeywordsById(c *gin.Context) {
-	var _ string = c.Param("id")
-	// KeywordsResponse, msg, code, err := admin.AdminDeleteKeywordsbyId(id)
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	var id string = c.Param("id")
+	keywordsResponse, msg, code, err := keywords.AdminDeletekeywordsbyId(id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords deleted successfully", "Put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords deleted successfully", keywordsResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
 
 func (base *Controller) KeywordsInfo(c *gin.Context) {
 
-	// KeywordsResponse, msg, code, err := admin.AdminKeywordsInfo()
-	// if err != nil {
-	// 	rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
-	// 	c.JSON(code, rd)
-	// 	return
-	// }
+	KeywordsResponse, msg, code, err := keywords.AdminKeywordsInfo()
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords Info successfully", "put data here")
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Keywords Info successfully", KeywordsResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
