@@ -31,6 +31,7 @@ func Setup(validate *validator.Validate, logger *utility.Logger) *gin.Engine {
 	Subscription(r, validate, ApiVersion, logger)
 	Keywords(r, validate, ApiVersion, logger)
 	Category(r, validate, ApiVersion, logger)
+	Verses(r, validate, ApiVersion, logger)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
