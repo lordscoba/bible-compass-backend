@@ -26,7 +26,6 @@ func StructToMap(inputStruct interface{}) map[string]interface{} {
 		jsonTag := field.Tag.Get("json")
 		value := structValue.Field(i).Interface()
 		if !IsEmpty(value) {
-			// fmt.Println(jsonTag, value, IsEmpty(value))
 			resultMap[jsonTag] = value
 		}
 	}
@@ -59,4 +58,15 @@ func IsEmpty(value interface{}) bool {
 	default:
 		return reflect.DeepEqual(value, reflect.Zero(v.Type()).Interface())
 	}
+}
+
+func ComparingUpdate[T any](fromCurrent, fromDatabase T) T {
+	if v := fromCurrent; !IsEmpty(v) {
+		return v
+	}
+	return fromDatabase
+}
+
+func DeleteElement[T any](slice []T, index int) []T {
+	return append(slice[:index], slice[index+1:]...)
 }

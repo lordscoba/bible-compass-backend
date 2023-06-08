@@ -27,10 +27,10 @@ type Keywords struct {
 	CategoryID     primitive.ObjectID `bson:"category_id" json:"category_id"`
 	Keyword        string             `bson:"keyword" json:"keyword" validate:"required"`
 	ForSubscribers bool               `bson:"for_subscribers" json:"for_subscribers"`
-	BibleVerse     []BibleVerse       `bson:"bible_verse" json:"bible_verse"`
+	BibleVerse     []BibleVerse       `bson:"bible_verse,truncate" json:"bible_verse"`
 	DateCreated    time.Time          `bson:"date_created" json:"date_created"`
 	DateUpdated    time.Time          `bson:"date_updated" json:"date_updated"`
-	Favorite       bool
+	Favorite       bool               `bson:"favorite" json:"favorite"`
 }
 
 type KeywordsResponse struct {
@@ -57,6 +57,10 @@ type BibleVerseResponse struct {
 	Passage       string
 	Explanation   string
 	Like          bool
+}
+
+type BibleVerseInfoResponse struct {
+	TotalVerses int
 }
 
 type KeywordsInfoResponse struct {
