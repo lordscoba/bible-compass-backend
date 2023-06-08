@@ -19,19 +19,19 @@ type Response struct {
 	Extra   interface{} `json:"extra,omitempty"`
 }
 
-//BuildResponse method is to inject data value to dynamic success response
+// BuildResponse method is to inject data value to dynamic success response
 func BuildSuccessResponse(code int, message string, data interface{}, pagination ...interface{}) Response {
 	res := ResponseMessage(code, "success", "", message, nil, data, pagination, nil)
 	return res
 }
 
-//BuildErrorResponse method is to inject data value to dynamic failed response
+// BuildErrorResponse method is to inject data value to dynamic failed response
 func BuildErrorResponse(code int, status string, message string, err interface{}, data interface{}, logger ...bool) Response {
 	res := ResponseMessage(code, status, "", message, err, data, nil, nil)
 	return res
 }
 
-//ResponseMessage method for the central response holder
+// ResponseMessage method for the central response holder
 func ResponseMessage(code int, status string, name string, message string, err interface{}, data interface{}, pagination interface{}, extra interface{}) Response {
 	if pagination != nil && reflect.ValueOf(pagination).IsNil() {
 		pagination = nil

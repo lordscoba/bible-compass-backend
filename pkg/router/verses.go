@@ -14,12 +14,12 @@ func Verses(r *gin.Engine, validate *validator.Validate, ApiVersion string, logg
 
 	verseUrl := r.Group(fmt.Sprintf("/api/%v", ApiVersion))
 	{
-		verseUrl.POST("/admin/createverse/:id", verses.CreateVerses)
-		verseUrl.PATCH("/admin/updateverse/:id", verses.UpdateVerses)
-		verseUrl.GET("/admin/getverses", verses.GetVerses)
-		verseUrl.GET("/admin/getverse/:id", verses.GetVersesById)
-		verseUrl.GET("/admin/verseinfo", verses.VersesInfo)
-		verseUrl.DELETE("/admin/deleteverse/:id", verses.DeleteVersesById)
+		verseUrl.POST("/admin/createverse/:kid", verses.CreateVerses)
+		verseUrl.PATCH("/admin/updateverse/:kid/:Bid", verses.UpdateVerses)
+		verseUrl.GET("/admin/getverses/:kid", verses.GetVerses)
+		verseUrl.GET("/admin/getverse/:kid/:Bid", verses.GetVersesById)
+		verseUrl.GET("/admin/verseinfo/:kid", verses.VersesInfo)
+		verseUrl.DELETE("/admin/deleteverse/:kid/:Bid", verses.DeleteVersesById)
 	}
 	return r
 }

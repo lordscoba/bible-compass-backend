@@ -33,12 +33,18 @@ func AuthSignUp(user model.User) (model.UserResponse, string, int, error) {
 		return model.UserResponse{}, "username already exist", 403, errors.New("username already exist in database")
 	}
 
+	// check if passwords match
+	if user.Password != user.ConfirmPassword {
+		return model.UserResponse{}, "Passwords does not match", 403, errors.New("passwords does not match")
+	}
+
 	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 
 	user.Password = string(hash)
 	user.ID = primitive.NewObjectID()
 	user.DateCreated = time.Now().Local()
 	user.DateUpdated = time.Now().Local()
+	user.Type = "user"
 
 	// save to DB
 	_, err := mongodb.MongoPost(constants.UserCollection, user)
