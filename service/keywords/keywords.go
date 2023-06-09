@@ -25,10 +25,10 @@ func AdminCreateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 		return model.KeywordsResponse{}, "category does not exist", 403, errors.New("user does not exist in database")
 	}
 
+	// check if key exists
 	keysearch := map[string]any{
 		"keyword": keywords.Keyword,
 	}
-	// check if key exists
 	keyCount, _ := mongodb.MongoCount(constants.KeywordCollection, keysearch)
 	if keyCount >= 1 {
 		return model.KeywordsResponse{}, "key already exist", 403, errors.New("key already exist in database")
@@ -46,6 +46,25 @@ func AdminCreateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 	if err != nil {
 		return model.KeywordsResponse{}, "Unable to save keyword to database", 500, err
 	}
+
+	// save keyword to category
+	// get from db
+	var resultOne model.Category
+	result, err := mongodb.MongoGetOne(constants.CategoryCollection, idsearch)
+	if err != nil {
+		return model.KeywordsResponse{}, "Unable to get category from database", 500, err
+	}
+	result.Decode(&resultOne)
+
+	var category model.Category
+	category.Keywords = append(resultOne.Keywords, keywords.Keyword)
+
+	// save to DB
+	_, err = mongodb.MongoUpdate(idsearch, category, constants.CategoryCollection)
+	if err != nil {
+		return model.KeywordsResponse{}, "Unable to save user to database", 500, err
+	}
+	// save keyword to category ends
 
 	KeywordsResponse := model.KeywordsResponse{
 		Keyword:        keywords.Keyword,

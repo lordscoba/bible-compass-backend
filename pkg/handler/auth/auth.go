@@ -40,7 +40,7 @@ func (base *Controller) Signup(c *gin.Context) {
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "account signup successfully", userResponse)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "account signup successfull", userResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
