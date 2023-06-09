@@ -15,6 +15,20 @@ import (
 
 func AuthSignUp(user model.User) (model.UserResponse, string, int, error) {
 
+	// check if required data is entered
+	if user.Username == "" {
+		return model.UserResponse{}, "Enter Username", 403, errors.New("username is missing")
+	}
+	if user.Email == "" {
+		return model.UserResponse{}, "Enter Email", 403, errors.New("email is missing")
+	}
+	if user.Password == "" {
+		return model.UserResponse{}, "Enter password", 403, errors.New("password is missing")
+	}
+	if user.ConfirmPassword == "" {
+		return model.UserResponse{}, "Enter Confirm password", 403, errors.New("confirm password is missing")
+	}
+
 	// check if email already exists
 	emailsearch := map[string]any{
 		"email": user.Email,
@@ -45,6 +59,7 @@ func AuthSignUp(user model.User) (model.UserResponse, string, int, error) {
 	user.DateCreated = time.Now().Local()
 	user.DateUpdated = time.Now().Local()
 	user.Type = "user"
+	user.ConfirmPassword = ""
 
 	// save to DB
 	_, err := mongodb.MongoPost(constants.UserCollection, user)
@@ -63,25 +78,25 @@ func AuthSignUp(user model.User) (model.UserResponse, string, int, error) {
 func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 
 	// check if required data is entered
-	if user.Username == "" {
-		return model.UserResponse{}, "Enter Username", 403, errors.New("username is missing")
+	if user.Email == "" {
+		return model.UserResponse{}, "Enter Email", 403, errors.New("Email is missing")
 	}
 	if user.Password == "" {
 		return model.UserResponse{}, "Enter Password", 403, errors.New("password is missing")
 	}
 
 	// check if user exists
-	usernamesearch := map[string]any{
-		"username": user.Username,
+	emailsearch := map[string]any{
+		"email": user.Email,
 	}
-	usernameCount, _ := mongodb.MongoCount(constants.UserCollection, usernamesearch)
+	emailCount, _ := mongodb.MongoCount(constants.UserCollection, emailsearch)
 
-	if usernameCount < 1 {
-		return model.UserResponse{}, "username does not exist", 403, errors.New("username does not exist")
+	if emailCount < 1 {
+		return model.UserResponse{}, "email does not exist", 403, errors.New("email does not exist")
 	}
 
 	// get from db
-	result, err := mongodb.MongoGet(constants.UserCollection, usernamesearch)
+	result, err := mongodb.MongoGet(constants.UserCollection, emailsearch)
 	if err != nil {
 		return model.UserResponse{}, "Unable to get user to database", 500, err
 	}
@@ -89,12 +104,16 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	var users = make([]model.User, 0)
 	result.All(context.TODO(), &users)
 
+	var saved model.User
 	for i, userSaved := range users {
 		if i == 0 {
 			if !utility.IsValidPassword(userSaved.Password, user.Password) {
-				return model.UserResponse{}, "password does not match", 403, errors.New("password does not match")
+				return model.UserResponse{}, "password is wrong", 403, errors.New("password is wrong")
 
 			}
+			saved.Username = userSaved.Username
+			saved.Name = userSaved.Name
+
 		}
 	}
 
@@ -103,16 +122,16 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	user.Password = ""
 
 	// save to DB
-	_, err = mongodb.MongoUpdate(usernamesearch, user, constants.UserCollection)
+	_, err = mongodb.MongoUpdate(emailsearch, user, constants.UserCollection)
 	if err != nil {
 		return model.UserResponse{}, "Unable to save user to database", 500, err
 	}
 
 	userResponse := model.UserResponse{
-		Username: user.Username,
-		Email:    user.Email,
-		// TokenType:    "bearer",
-		// Token:        token,
+		Username:  saved.Username,
+		Email:     user.Email,
+		TokenType: "bearer",
+		Token:     "",
 		LastLogin: user.LastLogin,
 	}
 
