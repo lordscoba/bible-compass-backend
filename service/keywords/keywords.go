@@ -9,6 +9,7 @@ import (
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
 	"github.com/lordscoba/bible_compass_backend/pkg/repository/storage/mongodb"
+	"github.com/lordscoba/bible_compass_backend/utility"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -98,6 +99,9 @@ func AdminUpdateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 
 	keywords.CategoryID = resultOne.CategoryID
 	keywords.DateUpdated = time.Now().Local()
+	categoryIdsearch := map[string]any{
+		"_id": resultOne.CategoryID,
+	}
 
 	// save to DB
 	_, err = mongodb.MongoUpdate(idsearch, keywords, constants.KeywordCollection)
@@ -105,9 +109,46 @@ func AdminUpdateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 		return model.KeywordsResponse{}, "Unable to save user to database", 500, err
 	}
 
+	//update keywords in category
+	// get from db
+	var resultCategory model.Category
+	result, err = mongodb.MongoGetOne(constants.CategoryCollection, categoryIdsearch)
+	if err != nil {
+		return model.KeywordsResponse{}, "Unable to get category from database", 500, err
+	}
+	result.Decode(&resultCategory)
+
+	// filter array to check if keyword exists
+	found := false
+	var newkeyword string = keywords.Keyword
+	var index int
+	for i, v := range resultCategory.Keywords {
+		if v == resultOne.Keyword {
+			found = true
+			index = i
+			break
+		}
+	}
+	if !found {
+		return model.KeywordsResponse{}, "keyword does not exist in category", 403, errors.New("keyword does not exist in database")
+	}
+
+	var category model.Category
+	category.ID = resultOne.CategoryID
+	//deleting from slice
+	category.Keywords = utility.DeleteElement(resultCategory.Keywords, index)
+	//append to slice
+	category.Keywords = append(category.Keywords, newkeyword)
+	// save to DB
+	_, err = mongodb.MongoUpdate(categoryIdsearch, category, constants.CategoryCollection)
+	if err != nil {
+		return model.KeywordsResponse{}, "Unable to save user to database", 500, err
+	}
+	//update keyword in category ends
+
 	KeywordsResponse := model.KeywordsResponse{
 		Keyword:        keywords.Keyword,
-		DateCreated:    keywords.DateCreated,
+		DateCreated:    resultOne.DateCreated,
 		ForSubscribers: keywords.ForSubscribers,
 		Favorite:       keywords.Favorite,
 	}
