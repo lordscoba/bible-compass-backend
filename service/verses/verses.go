@@ -56,6 +56,7 @@ func AdminCreateVerses(verses model.BibleVerse, kid string) (model.BibleVerseRes
 	}
 
 	keyword.BibleVerse = append(resultOne.BibleVerse, bibleDetails)
+	keyword.CategoryID = resultOne.CategoryID
 
 	// save to DB
 	_, err = mongodb.MongoUpdate(keywordsearch, keyword, constants.KeywordCollection)

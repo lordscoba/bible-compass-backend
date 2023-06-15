@@ -40,7 +40,7 @@ func (base *Controller) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "user created successfully", CategoryResponse)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "category created successfully", CategoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
@@ -100,7 +100,7 @@ func (base *Controller) GetCategoryById(c *gin.Context) {
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "User Gotten successfully", categoryResponse)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "category Gotten successfully", categoryResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
