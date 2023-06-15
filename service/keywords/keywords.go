@@ -155,10 +155,16 @@ func AdminUpdateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 	return KeywordsResponse, "", 0, nil
 }
 
-func AdminGetKeywords() ([]model.Keywords, string, int, error) {
+func AdminGetKeywords(catid string) ([]model.Keywords, string, int, error) {
+
+	idHash, _ := primitive.ObjectIDFromHex(catid)
+
+	idsearch := map[string]any{
+		"category_id": idHash,
+	}
 
 	// get from db
-	result, err := mongodb.MongoGetAll(constants.KeywordCollection)
+	result, err := mongodb.MongoGet(constants.KeywordCollection, idsearch)
 	if err != nil {
 		return []model.Keywords{}, "Unable to save keywords to database", 500, err
 	}

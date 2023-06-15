@@ -40,6 +40,8 @@ func AdminCreateUser(user model.User) (model.UserResponse, string, int, error) {
 	user.ID = primitive.NewObjectID()
 	user.DateCreated = time.Now().Local()
 	user.DateUpdated = time.Now().Local()
+	user.Type = "user"
+	user.ConfirmPassword = ""
 
 	// save to DB
 	_, err := mongodb.MongoPost(constants.UserCollection, user)
@@ -103,22 +105,23 @@ func AdminGetUser() ([]model.User, string, int, error) {
 	return users, "", 0, nil
 }
 
-func AdminGetUserbyId(id string) ([]model.User, string, int, error) {
+func AdminGetUserbyId(id string) (model.User, string, int, error) {
 	idHash, _ := primitive.ObjectIDFromHex(id)
 	search := map[string]any{
 		"_id": idHash,
 	}
+
 	// get from db
-	result, err := mongodb.MongoGet(constants.UserCollection, search)
+	var resultOne model.User
+	result, err := mongodb.MongoGetOne(constants.UserCollection, search)
 	if err != nil {
-		return []model.User{}, "Unable to get user from database", 500, err
+		return model.User{}, "Unable to get User from database", 500, err
 	}
+	result.Decode(&resultOne)
+	// get from db end
 
-	var users = make([]model.User, 0)
-	result.All(context.TODO(), &users)
-
-	fmt.Println(users)
-	return users, "", 0, nil
+	fmt.Println(resultOne)
+	return resultOne, "", 0, nil
 }
 
 func AdminDeleteUserbyId(id string) (int64, string, int, error) {
