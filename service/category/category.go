@@ -119,9 +119,31 @@ func AdminDeleteCategorybyId(id string) (int64, string, int, error) {
 	}
 
 	// get from db
+	var resultOne model.Category
+	result1, err := mongodb.MongoGetOne(constants.CategoryCollection, search)
+	if err != nil {
+		return 0, "Unable to get category from database", 500, err
+	}
+	result1.Decode(&resultOne)
+	// get from db end
+
+	for _, v := range resultOne.Keywords {
+
+		searchkey := map[string]any{
+			"keyword": v,
+		}
+
+		// delete from db
+		_, err := mongodb.MongoDelete(constants.KeywordCollection, searchkey)
+		if err != nil {
+			return 0, "Unable to delete  category from database", 500, err
+		}
+	}
+
+	// delete from db
 	result, err := mongodb.MongoDelete(constants.CategoryCollection, search)
 	if err != nil {
-		return 0, "Unable to save category to database", 500, err
+		return 0, "Unable to delete category from database", 500, err
 	}
 
 	fmt.Println(result.DeletedCount)
