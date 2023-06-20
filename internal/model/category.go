@@ -34,11 +34,11 @@ type Keywords struct {
 }
 
 type KeywordsResponse struct {
-	Keyword        string
-	ForSubscribers bool
-	BibleVerse     []BibleVerse
-	DateCreated    time.Time
-	Favorite       bool
+	Keyword        string       `json:"keyword"`
+	ForSubscribers bool         `json:"for_subscribers"`
+	BibleVerse     []BibleVerse `json:"bible_verse"`
+	DateCreated    time.Time    `json:"date_created"`
+	Favorite       bool         `json:"favorite"`
 }
 
 type BibleVerse struct {
@@ -52,25 +52,25 @@ type BibleVerse struct {
 }
 
 type BibleVerseResponse struct {
-	BibleVerse    string
-	RelatedVerses []string
-	Passage       string
-	Explanation   string
-	Like          bool
+	BibleVerse    string   `json:"bible_verse"`
+	RelatedVerses []string `json:"related_verse"`
+	Passage       string   `json:"passage"`
+	Explanation   string   `json:"explanation"`
+	Like          bool     `json:"like"`
 }
 
 type BibleVerseInfoResponse struct {
-	TotalVerses int
+	TotalVerses int `json:"total_verses"`
 }
 
 type KeywordsInfoResponse struct {
-	TotalKeywords       int64
-	SubscribersKeywords int64
-	TotalBibleVerse     int64
+	TotalKeywords       int64 `json:"total_keywords"`
+	SubscribersKeywords int64 `json:"subscribers_keywords"`
+	TotalBibleVerse     int64 `json:"total_bible_verse"`
 }
 
 type CategoryInfoResponse struct {
-	TotalCategory       int64
-	SubscribersCategory int64
-	TotalKeyWords       int64
+	TotalCategory       int64 `json:"total_category"`
+	SubscribersCategory int64 `json:"subscribers_category"`
+	TotalKeyWords       int64 `json:"total_keywords"`
 }

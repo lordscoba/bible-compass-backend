@@ -113,6 +113,7 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 			}
 			saved.Username = userSaved.Username
 			saved.Name = userSaved.Name
+			saved.Type = userSaved.Type
 
 		}
 	}
@@ -130,6 +131,7 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	userResponse := model.UserResponse{
 		Username:  saved.Username,
 		Email:     user.Email,
+		Type:      saved.Type,
 		TokenType: "bearer",
 		Token:     "",
 		LastLogin: user.LastLogin,
