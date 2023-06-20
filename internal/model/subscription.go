@@ -29,7 +29,7 @@ type SubscriptionResponse struct {
 }
 
 type SubscriptionInfoResponse struct {
-	TotalSubscription    int64
-	ActiveSubscription   int64
-	InActiveSubscription int64
+	TotalSubscription    int64 `json:"total_subscription"`
+	ActiveSubscription   int64 `json:"active_subscription"`
+	InActiveSubscription int64 `json:"inactive_subscription"`
 }

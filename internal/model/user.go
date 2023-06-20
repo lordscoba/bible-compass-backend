@@ -21,16 +21,17 @@ type User struct {
 }
 
 type UserResponse struct {
-	Username  string
-	Name      string
-	Email     string
-	Token     string
-	TokenType string
-	LastLogin time.Time
+	Username  string    `json:"username"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Type      string    `json:"type"`
+	Token     string    `json:"token"`
+	TokenType string    `json:"token_type"`
+	LastLogin time.Time `json:"last_login"`
 }
 
 type UserInfoResponse struct {
-	TotalUsers      int64
-	SubscribedUsers int64
-	VerifiedUsers   int64
+	TotalUsers      int64 `json:"total_users"`
+	SubscribedUsers int64 `json:"subscribed_users"`
+	VerifiedUsers   int64 `json:"verified_users"`
 }
