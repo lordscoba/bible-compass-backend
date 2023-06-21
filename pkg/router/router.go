@@ -32,6 +32,7 @@ func Setup(validate *validator.Validate, logger *utility.Logger) *gin.Engine {
 	Keywords(r, validate, ApiVersion, logger)
 	Category(r, validate, ApiVersion, logger)
 	Verses(r, validate, ApiVersion, logger)
+	Fav(r, validate, ApiVersion, logger)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{

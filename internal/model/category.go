@@ -7,7 +7,7 @@ import (
 )
 
 type Category struct {
-	ID             primitive.ObjectID `bson:"_id, omitempty"`
+	ID             primitive.ObjectID `bson:"_id, omitempty"  json:"id"`
 	CategoryName   string             `bson:"category_name" json:"category_name" validate:"required"`
 	ForSubscribers bool               `bson:"for_subscribers" json:"for_subscribers"`
 	Keywords       []string           `bson:"keywords" json:"keywords"`
@@ -23,7 +23,7 @@ type CategoryResponse struct {
 }
 
 type Keywords struct {
-	ID             primitive.ObjectID `bson:"_id, omitempty"`
+	ID             primitive.ObjectID `bson:"_id, omitempty"  json:"id"`
 	CategoryID     primitive.ObjectID `bson:"category_id" json:"category_id"`
 	Keyword        string             `bson:"keyword" json:"keyword" validate:"required"`
 	ForSubscribers bool               `bson:"for_subscribers" json:"for_subscribers"`
@@ -42,7 +42,7 @@ type KeywordsResponse struct {
 }
 
 type BibleVerse struct {
-	ID            primitive.ObjectID `bson:"_id, omitempty"`
+	ID            primitive.ObjectID `bson:"_id, omitempty"  json:"id"`
 	BibleVerse    string             `bson:"bible_verse" json:"bible_verse" validate:"required"`
 	RelatedVerses []string           `bson:"related_verses" json:"related_verses"`
 	Passage       string             `bson:"passage" json:"passage"`
