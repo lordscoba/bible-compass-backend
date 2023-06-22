@@ -7,7 +7,7 @@ import (
 )
 
 type Subscription struct {
-	ID           primitive.ObjectID `bson:"_id, omitempty"`
+	ID           primitive.ObjectID `bson:"_id, omitempty"  json:"id"`
 	Username     string             `bson:"username" json:"username" validate:"required"`
 	UserID       primitive.ObjectID `bson:"user_id" json:"user_id"`
 	Type         string             `bson:"type" json:"type"` //just premium

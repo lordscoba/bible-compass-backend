@@ -114,6 +114,7 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 			saved.Username = userSaved.Username
 			saved.Name = userSaved.Name
 			saved.Type = userSaved.Type
+			saved.ID = userSaved.ID
 
 		}
 	}
@@ -129,6 +130,8 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	}
 
 	userResponse := model.UserResponse{
+		Name:      saved.Name,
+		ID:        saved.ID.Hex(),
 		Username:  saved.Username,
 		Email:     user.Email,
 		Type:      saved.Type,

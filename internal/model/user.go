@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID              primitive.ObjectID `bson:"_id, omitempty"`
+	ID              primitive.ObjectID `bson:"_id, omitempty" json:"id"`
 	Username        string             `bson:"username" json:"username"`
 	Name            string             `bson:"name" json:"name"`
 	Email           string             `bson:"email" json:"email" validate:"required,email"`
@@ -21,6 +21,7 @@ type User struct {
 }
 
 type UserResponse struct {
+	ID        string    `json:"id"`
 	Username  string    `json:"username"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`

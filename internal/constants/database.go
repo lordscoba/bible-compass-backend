@@ -5,4 +5,5 @@ const (
 	CategoryCollection     = "category"
 	KeywordCollection      = "keywords"
 	SubscriptionCollection = "subscriptions"
+	FavCollection          = "favorites"
 )
