@@ -143,6 +143,34 @@ func AdminDeleteSubscriptionbyId(id string) (int64, string, int, error) {
 	return result.DeletedCount, "", 0, nil
 }
 
+func AdminGetUserSubService(userid string) ([]model.Subscription, string, int, error) {
+
+	userIdHash, _ := primitive.ObjectIDFromHex(userid)
+	search := map[string]any{
+		"_id": userIdHash,
+	}
+
+	// check if id exists
+	idCount, _ := mongodb.MongoCount(constants.UserCollection, search)
+	if idCount < 1 {
+		return []model.Subscription{}, "user does not exist", 403, errors.New("subscription does not exist in database")
+	}
+
+	searchcol := map[string]any{
+		"user_id": userIdHash,
+	}
+	// get from db
+	result, err := mongodb.MongoGet(constants.SubscriptionCollection, searchcol)
+	if err != nil {
+		return []model.Subscription{}, "Unable to get subscription to database", 500, err
+	}
+
+	var subscription = make([]model.Subscription, 0)
+	result.All(context.TODO(), &subscription)
+	return subscription, "", 0, nil
+
+}
+
 func AdminSubscriptionInfo() (model.SubscriptionInfoResponse, string, int, error) {
 	// total users
 	search := map[string]any{}

@@ -106,6 +106,20 @@ func (base *Controller) GetSubscriptionById(c *gin.Context) {
 
 }
 
+func (base *Controller) GetUserSub(c *gin.Context) {
+	var userId string = c.Param("userId")
+	subscriptionResponse, msg, code, err := subscription.AdminGetUserSubService(userId)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Gotten successfully", subscriptionResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
+
 func (base *Controller) DeleteSubscriptionById(c *gin.Context) {
 	var id string = c.Param("id")
 	subscriptionResponse, msg, code, err := subscription.AdminDeleteSubscriptionbyId(id)
