@@ -20,6 +20,7 @@ func Subscription(r *gin.Engine, validate *validator.Validate, ApiVersion string
 		keywordsUrl.GET("/admin/getsubscription", subscription.GetSubscription)
 		keywordsUrl.GET("/admin/getsubscriptionid/:id", subscription.GetSubscriptionById)
 		keywordsUrl.GET("/admin/subscriptioninfo", subscription.SubscriptionInfo)
+		keywordsUrl.GET("/admin/getusersub/:userId", subscription.GetUserSub)
 	}
 	return r
 }
