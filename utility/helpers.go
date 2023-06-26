@@ -70,3 +70,32 @@ func ComparingUpdate[T any](fromCurrent, fromDatabase T) T {
 func DeleteElement[T any](slice []T, index int) []T {
 	return append(slice[:index], slice[index+1:]...)
 }
+
+func SearchFilter(search map[string]string) (f interface{}) {
+
+	if len(search) == 1 {
+		s := make(bson.D, 0, len(search))
+		for k, v := range search {
+			s = bson.D{{Key: k, Value: bson.D{{Key: "$regex", Value: v + ".*"}, {Key: "$options", Value: "i"}}}}
+		}
+
+		return s
+	} else if len(search) > 1 {
+		tf := make([]bson.D, 0, len(search))
+		for k, v := range search {
+			if v != "" {
+				tf = append(tf, bson.D{{Key: k, Value: bson.D{{Key: "$regex", Value: v + ".*"}, {Key: "$options", Value: "i"}}}})
+
+			}
+		}
+		if len(tf) == 0 {
+			return bson.M{}
+		} else {
+			return bson.M{"$or": tf}
+		}
+
+	}
+
+	return bson.M{}
+
+}

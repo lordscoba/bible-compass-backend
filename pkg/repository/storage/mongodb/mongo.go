@@ -95,24 +95,25 @@ func MongoCount[T any](collection string, filter map[string]T) (int64, error) {
 	return result, nil
 }
 
-func MongoGet[T any](collection string, filter map[string]T) (*mongo.Cursor, error) {
+func MongoGet[T any](collection string, filter map[string]T, search map[string]string) (*mongo.Cursor, error) {
 	c := getCollection(collection)
 
 	f := make(bson.M)
+	ft := utility.SearchFilter(search)
 
 	if len(filter) == 1 {
 		for k, v := range filter {
 			f = bson.M{k: v}
 		}
+		f = bson.M{"$and": bson.A{ft, f}}
 	} else if len(filter) > 1 {
 		tf := make([]bson.M, 0, len(filter))
 		for k, v := range filter {
 			tf = append(tf, bson.M{k: v})
 		}
+		f = bson.M{"$and": bson.A{tf, ft}}
 
-		f = bson.M{"$and": tf}
 	}
-
 	cursor, err := c.Find(ctx, f)
 	if err != nil {
 		return nil, err
@@ -147,38 +148,13 @@ func MongoDelete[T any](collection string, filter map[string]T) (*mongo.DeleteRe
 
 func MongoGetAll(collection string, search map[string]string) (*mongo.Cursor, error) {
 	c := getCollection(collection)
-	var f interface{}
-	if len(search) == 1 {
-		s := make(bson.D, 0, len(search))
-		for k, v := range search {
-			s = bson.D{{Key: k, Value: bson.D{{Key: "$regex", Value: v + ".*"}, {Key: "$options", Value: "i"}}}}
-		}
 
-		f = s
-	} else if len(search) > 1 {
-		tf := make([]bson.D, 0, len(search))
-		for k, v := range search {
-			if v != "" {
-				tf = append(tf, bson.D{{Key: k, Value: bson.D{{Key: "$regex", Value: v + ".*"}, {Key: "$options", Value: "i"}}}})
+	f := utility.SearchFilter(search)
 
-			}
-		}
-		if len(tf) == 0 {
-			f = bson.M{}
-		} else {
-			f = bson.M{"$or": tf}
-		}
-
-	}
-	cursor, err := c.Find(context.TODO(), f)
+	cursor, err := c.Find(ctx, f)
 	if err != nil {
 		return nil, err
 	}
-
-	if err != nil {
-		panic(err)
-	}
-
 	return cursor, nil
 }
 
