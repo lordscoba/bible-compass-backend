@@ -80,7 +80,12 @@ func (base *Controller) UpdateSubscription(c *gin.Context) {
 
 func (base *Controller) GetSubscription(c *gin.Context) {
 
-	subscriptionResponse, msg, code, err := subscription.AdminGetSubscription()
+	searchText := map[string]string{
+		"username": c.DefaultQuery("username", ""),
+		"email":    c.DefaultQuery("email", ""),
+	}
+
+	subscriptionResponse, msg, code, err := subscription.AdminGetSubscription(searchText)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
 		c.JSON(code, rd)

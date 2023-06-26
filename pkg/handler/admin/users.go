@@ -79,7 +79,12 @@ func (base *Controller) UpdateUser(c *gin.Context) {
 
 func (base *Controller) GetUsers(c *gin.Context) {
 
-	userResponse, msg, code, err := admin.AdminGetUser()
+	searchText := map[string]string{
+		"username": c.DefaultQuery("username", ""),
+		"email":    c.DefaultQuery("email", ""),
+	}
+
+	userResponse, msg, code, err := admin.AdminGetUser(searchText)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
 		c.JSON(code, rd)

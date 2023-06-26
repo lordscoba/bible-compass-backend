@@ -74,10 +74,10 @@ func AdminUpdatecategory(category model.Category, id string) (model.CategoryResp
 	return categoryResponse, "", 0, nil
 }
 
-func AdminGetCategory() ([]model.Category, string, int, error) {
+func AdminGetCategory(searchText map[string]string) ([]model.Category, string, int, error) {
 
 	// get from db
-	result, err := mongodb.MongoGetAll(constants.CategoryCollection)
+	result, err := mongodb.MongoGetAll(constants.CategoryCollection, searchText)
 	if err != nil {
 		return []model.Category{}, "Unable to save category to database", 500, err
 	}

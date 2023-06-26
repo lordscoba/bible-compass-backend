@@ -92,12 +92,12 @@ func AdminUpdateUser(user model.User, id string) (model.UserResponse, string, in
 	return userResponse, "", 0, nil
 }
 
-func AdminGetUser() ([]model.User, string, int, error) {
+func AdminGetUser(searchText map[string]string) ([]model.User, string, int, error) {
 
 	// get from db
-	result, err := mongodb.MongoGetAll(constants.UserCollection)
+	result, err := mongodb.MongoGetAll(constants.UserCollection, searchText)
 	if err != nil {
-		return []model.User{}, "Unable to save user to database", 500, err
+		return []model.User{}, "Unable to get user to database", 500, err
 	}
 
 	var users = make([]model.User, 0)
