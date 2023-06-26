@@ -79,7 +79,7 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 
 	// check if required data is entered
 	if user.Email == "" {
-		return model.UserResponse{}, "Enter Email", 403, errors.New("Email is missing")
+		return model.UserResponse{}, "Enter Email", 403, errors.New("email is missing")
 	}
 	if user.Password == "" {
 		return model.UserResponse{}, "Enter Password", 403, errors.New("password is missing")
@@ -96,7 +96,10 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	}
 
 	// get from db
-	result, err := mongodb.MongoGet(constants.UserCollection, emailsearch)
+	searchText := map[string]string{
+		"username": "",
+	}
+	result, err := mongodb.MongoGet(constants.UserCollection, emailsearch, searchText)
 	if err != nil {
 		return model.UserResponse{}, "Unable to get user to database", 500, err
 	}

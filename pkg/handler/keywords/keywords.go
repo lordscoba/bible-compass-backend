@@ -82,7 +82,11 @@ func (base *Controller) UpdateKeywords(c *gin.Context) {
 func (base *Controller) GetKeywords(c *gin.Context) {
 	var catid string = c.Param("catid")
 
-	keywordsResponse, msg, code, err := keywords.AdminGetKeywords(catid)
+	searchText := map[string]string{
+		"keyword": c.DefaultQuery("keyword", ""),
+	}
+
+	keywordsResponse, msg, code, err := keywords.AdminGetKeywords(catid, searchText)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
 		c.JSON(code, rd)

@@ -143,7 +143,7 @@ func AdminDeleteSubscriptionbyId(id string) (int64, string, int, error) {
 	return result.DeletedCount, "", 0, nil
 }
 
-func AdminGetUserSubService(userid string) ([]model.Subscription, string, int, error) {
+func AdminGetUserSubService(userid string, searchText map[string]string) ([]model.Subscription, string, int, error) {
 
 	userIdHash, _ := primitive.ObjectIDFromHex(userid)
 	search := map[string]any{
@@ -160,7 +160,7 @@ func AdminGetUserSubService(userid string) ([]model.Subscription, string, int, e
 		"user_id": userIdHash,
 	}
 	// get from db
-	result, err := mongodb.MongoGet(constants.SubscriptionCollection, searchcol)
+	result, err := mongodb.MongoGet(constants.SubscriptionCollection, searchcol, searchText)
 	if err != nil {
 		return []model.Subscription{}, "Unable to get subscription to database", 500, err
 	}

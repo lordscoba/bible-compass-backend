@@ -82,7 +82,7 @@ func (base *Controller) GetSubscription(c *gin.Context) {
 
 	searchText := map[string]string{
 		"username": c.DefaultQuery("username", ""),
-		"email":    c.DefaultQuery("email", ""),
+		"type":     c.DefaultQuery("type", ""),
 	}
 
 	subscriptionResponse, msg, code, err := subscription.AdminGetSubscription(searchText)
@@ -113,7 +113,11 @@ func (base *Controller) GetSubscriptionById(c *gin.Context) {
 
 func (base *Controller) GetUserSub(c *gin.Context) {
 	var userId string = c.Param("userId")
-	subscriptionResponse, msg, code, err := subscription.AdminGetUserSubService(userId)
+
+	searchText := map[string]string{
+		"type": c.DefaultQuery("type", ""),
+	}
+	subscriptionResponse, msg, code, err := subscription.AdminGetUserSubService(userId, searchText)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
 		c.JSON(code, rd)
