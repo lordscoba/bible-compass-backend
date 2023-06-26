@@ -79,7 +79,11 @@ func (base *Controller) UpdateCategory(c *gin.Context) {
 
 func (base *Controller) GetCategory(c *gin.Context) {
 
-	categoryResponse, msg, code, err := category.AdminGetCategory()
+	searchText := map[string]string{
+		"category_name": c.DefaultQuery("category_name", ""),
+	}
+
+	categoryResponse, msg, code, err := category.AdminGetCategory(searchText)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
 		c.JSON(code, rd)

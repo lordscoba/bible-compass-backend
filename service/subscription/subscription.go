@@ -89,10 +89,10 @@ func AdminUpdateSubscription(subscription model.Subscription, id string) (model.
 	return SubscriptionResponse, "", 0, nil
 }
 
-func AdminGetSubscription() ([]model.Subscription, string, int, error) {
+func AdminGetSubscription(searchText map[string]string) ([]model.Subscription, string, int, error) {
 
 	// get from db
-	result, err := mongodb.MongoGetAll(constants.SubscriptionCollection)
+	result, err := mongodb.MongoGetAll(constants.SubscriptionCollection, searchText)
 	if err != nil {
 		return []model.Subscription{}, "Unable to save subscription to database", 500, err
 	}

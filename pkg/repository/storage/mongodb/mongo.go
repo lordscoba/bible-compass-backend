@@ -145,13 +145,40 @@ func MongoDelete[T any](collection string, filter map[string]T) (*mongo.DeleteRe
 	return cursor, nil
 }
 
-func MongoGetAll(collection string) (*mongo.Cursor, error) {
+func MongoGetAll(collection string, search map[string]string) (*mongo.Cursor, error) {
 	c := getCollection(collection)
-	f := make(bson.M)
-	cursor, err := c.Find(ctx, f)
+	var f interface{}
+	if len(search) == 1 {
+		s := make(bson.D, 0, len(search))
+		for k, v := range search {
+			s = bson.D{{Key: k, Value: bson.D{{Key: "$regex", Value: v + ".*"}, {Key: "$options", Value: "i"}}}}
+		}
+
+		f = s
+	} else if len(search) > 1 {
+		tf := make([]bson.D, 0, len(search))
+		for k, v := range search {
+			if v != "" {
+				tf = append(tf, bson.D{{Key: k, Value: bson.D{{Key: "$regex", Value: v + ".*"}, {Key: "$options", Value: "i"}}}})
+
+			}
+		}
+		if len(tf) == 0 {
+			f = bson.M{}
+		} else {
+			f = bson.M{"$or": tf}
+		}
+
+	}
+	cursor, err := c.Find(context.TODO(), f)
 	if err != nil {
 		return nil, err
 	}
+
+	if err != nil {
+		panic(err)
+	}
+
 	return cursor, nil
 }
 
