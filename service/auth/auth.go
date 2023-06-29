@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/lordscoba/bible_compass_backend/internal/config"
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
 	"github.com/lordscoba/bible_compass_backend/pkg/repository/storage/mongodb"
@@ -124,6 +125,15 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 		}
 	}
 
+	secretkey := config.GetConfig().Server.Secret
+
+	token, err2 := utility.GenerateAllTokens(secretkey, user.Email, saved.Username, saved.Type, saved.ID.Hex())
+	if err2 != nil {
+		return model.UserResponse{}, "Unable to generate token", 500, err
+	}
+
+	user.Token = token
+	user.TokenType = "token"
 	user.DateUpdated = time.Now().Local()
 	user.LastLogin = time.Now().Local()
 	user.Password = ""
@@ -141,8 +151,8 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 		Username:  saved.Username,
 		Email:     user.Email,
 		Type:      saved.Type,
-		TokenType: "bearer",
-		Token:     "",
+		TokenType: user.TokenType,
+		Token:     token,
 		LastLogin: user.LastLogin,
 	}
 
