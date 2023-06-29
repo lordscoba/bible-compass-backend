@@ -60,6 +60,7 @@ func AuthSignUp(user model.User) (model.UserResponse, string, int, error) {
 	user.DateUpdated = time.Now().Local()
 	user.Type = "user"
 	user.ConfirmPassword = ""
+	user.Upgrade = false
 
 	// save to DB
 	_, err := mongodb.MongoPost(constants.UserCollection, user)
@@ -118,6 +119,7 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 			saved.Name = userSaved.Name
 			saved.Type = userSaved.Type
 			saved.ID = userSaved.ID
+			saved.Upgrade = userSaved.Upgrade
 
 		}
 	}
@@ -133,6 +135,7 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	}
 
 	userResponse := model.UserResponse{
+		Upgrade:   saved.Upgrade,
 		Name:      saved.Name,
 		ID:        saved.ID.Hex(),
 		Username:  saved.Username,

@@ -43,7 +43,18 @@ func AdminCreateSubscription(subscription model.Subscription, id string) (model.
 	// save to DB
 	_, err = mongodb.MongoPost(constants.SubscriptionCollection, subscription)
 	if err != nil {
-		return model.SubscriptionResponse{}, "Unable to save user to database", 500, err
+		return model.SubscriptionResponse{}, "Unable to save sub to database", 500, err
+	}
+
+	// update user
+	var user model.User
+	user.ID = idHash
+	user.Upgrade = true
+
+	// save to DB
+	_, err = mongodb.MongoUpdate(idsearch, user, constants.UserCollection)
+	if err != nil {
+		return model.SubscriptionResponse{}, "Unable to update user to database", 500, err
 	}
 
 	SubscriptionResponse := model.SubscriptionResponse{
@@ -191,6 +202,49 @@ func AdminSubscriptionInfo() (model.SubscriptionInfoResponse, string, int, error
 	// total keywords
 	StatusSearch2 := map[string]any{
 		"status": false,
+	}
+	InActiveSubscription, err := mongodb.MongoCount(constants.SubscriptionCollection, StatusSearch2)
+	if err != nil {
+		return model.SubscriptionInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	CategoryInfo := model.SubscriptionInfoResponse{
+		TotalSubscription:    TotalSubscription,
+		ActiveSubscription:   ActiveSubscription,
+		InActiveSubscription: InActiveSubscription,
+	}
+
+	return CategoryInfo, "", 0, nil
+}
+
+func AdminGetUserSubServiceStats(userid string) (model.SubscriptionInfoResponse, string, int, error) {
+
+	userIdHash, _ := primitive.ObjectIDFromHex(userid)
+	search := map[string]any{
+		"user_id": userIdHash,
+	}
+
+	// total users
+
+	TotalSubscription, err := mongodb.MongoCount(constants.SubscriptionCollection, search)
+	if err != nil {
+		return model.SubscriptionInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total subscribers category
+	StatusSearch1 := map[string]any{
+		"user_id": userIdHash,
+		"status":  true,
+	}
+	ActiveSubscription, err := mongodb.MongoCount(constants.SubscriptionCollection, StatusSearch1)
+	if err != nil {
+		return model.SubscriptionInfoResponse{}, "Unable to get count", 500, err
+	}
+
+	// total keywords
+	StatusSearch2 := map[string]any{
+		"user_id": userIdHash,
+		"status":  false,
 	}
 	InActiveSubscription, err := mongodb.MongoCount(constants.SubscriptionCollection, StatusSearch2)
 	if err != nil {
