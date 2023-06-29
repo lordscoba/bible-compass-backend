@@ -3,15 +3,15 @@ package config
 import (
 	"log"
 
+	// "github.com/lordscoba/bible_compass_backend/utility"
 	"github.com/lordscoba/bible_compass_backend/utility"
 	"github.com/spf13/viper"
 )
 
 type Configuration struct {
-	Server         ServerConfiguration
-	Mongodb        MongodbConfiguration
-	Redis          RedisConfiguration
-
+	Server  ServerConfiguration
+	Mongodb MongodbConfiguration
+	Redis   RedisConfiguration
 }
 
 // Setup initialize configuration

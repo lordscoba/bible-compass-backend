@@ -17,6 +17,8 @@ type User struct {
 	ConfirmPassword string             `bson:"confirm_password" json:"confirm_password"`
 	DateCreated     time.Time          `bson:"date_created" json:"date_created"`
 	DateUpdated     time.Time          `bson:"date_updated" json:"date_updated"`
+	Token           string             `bson:"token" json:"token"`
+	TokenType       string             `bson:"token_type" json:"token_type"`
 	LastLogin       time.Time          `bson:"last_login" json:"last_login"`
 	IsVerified      bool               `bson:"is_verified" json:"is_verified"`
 }

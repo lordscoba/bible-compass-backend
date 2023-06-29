@@ -25,8 +25,10 @@ func Setup(validate *validator.Validate, logger *utility.Logger) *gin.Engine {
 
 	ApiVersion := "v1"
 	Health(r, validate, ApiVersion, logger)
-	Admin(r, validate, ApiVersion, logger)
 	Auth(r, validate, ApiVersion, logger)
+
+	r.Use(middleware.AuthMiddleware())
+	Admin(r, validate, ApiVersion, logger)
 	Profile(r, validate, ApiVersion, logger)
 	Subscription(r, validate, ApiVersion, logger)
 	Keywords(r, validate, ApiVersion, logger)
