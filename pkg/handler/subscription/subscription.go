@@ -156,3 +156,18 @@ func (base *Controller) SubscriptionInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+
+func (base *Controller) GetUserSubStats(c *gin.Context) {
+	var userId string = c.Param("userId")
+
+	subscriptionResponse, msg, code, err := subscription.AdminGetUserSubServiceStats(userId)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription info gotten successfully", subscriptionResponse)
+	c.JSON(http.StatusOK, rd)
+
+}

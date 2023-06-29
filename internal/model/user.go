@@ -13,6 +13,7 @@ type User struct {
 	Email           string             `bson:"email" json:"email" validate:"required,email"`
 	Type            string             `bson:"type" json:"type" `
 	Password        string             `bson:"password" json:"password"`
+	Upgrade         bool               `bson:"upgrade" json:"upgrade"`
 	ConfirmPassword string             `bson:"confirm_password" json:"confirm_password"`
 	DateCreated     time.Time          `bson:"date_created" json:"date_created"`
 	DateUpdated     time.Time          `bson:"date_updated" json:"date_updated"`
@@ -25,6 +26,7 @@ type UserResponse struct {
 	Username  string    `json:"username"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
+	Upgrade   bool      `json:"upgrade"`
 	Type      string    `json:"type"`
 	Token     string    `json:"token"`
 	TokenType string    `json:"token_type"`

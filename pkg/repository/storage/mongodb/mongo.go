@@ -83,8 +83,17 @@ func MongoGetOne[T any](collection string, filter map[string]T) (*mongo.SingleRe
 func MongoCount[T any](collection string, filter map[string]T) (int64, error) {
 	c := getCollection(collection)
 	f := make(bson.M)
-	for k, v := range filter {
-		f = bson.M{k: v}
+	if len(filter) == 1 {
+		for k, v := range filter {
+			f = bson.M{k: v}
+		}
+	} else if len(filter) > 1 {
+		tf := make([]bson.M, 0, len(filter))
+		for k, v := range filter {
+			tf = append(tf, bson.M{k: v})
+		}
+
+		f = bson.M{"$and": tf}
 	}
 
 	result, err := c.CountDocuments(context.TODO(), f)
