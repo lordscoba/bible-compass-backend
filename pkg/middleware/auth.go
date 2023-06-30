@@ -11,7 +11,7 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		clientToken := c.Request.Header.Get("token")
+		clientToken := c.Request.Header.Get("bearer")
 
 		if clientToken == "" {
 			rd := utility.BuildErrorResponse(http.StatusInternalServerError, "error", "No authorization header was provided", "No authorization", nil)

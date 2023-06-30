@@ -8,14 +8,12 @@ import (
 )
 
 type SignedDetails struct {
-	Email    string
-	Username string
-	Uid      string
-	Type     string
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Uid      string `json:"uid"`
+	Type     string `json:"type"`
 	jwt.StandardClaims
 }
-
-// var SECRET_KEY string = config.GetConfig().Server.Secret
 
 func GenerateAllTokens(secretkey string, email string, username string, userType string, uid string) (signedToken string, err error) {
 	claims := &SignedDetails{
