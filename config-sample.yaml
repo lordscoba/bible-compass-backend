@@ -1,5 +1,6 @@
 mongodb:
-  url: "mongodb://localhost:27017/"
+  url: "mongodb+srv://lordscoba:blockchain@cluster0.ah1nlqp.mongodb.net/?retryWrites=true&w=majority"
+  # url: "mongodb+srv://lordscoba2tm:u7mxX3hx8mFqhJrZ@cluster0.zmmw0rt.mongodb.net/?retryWrites=true&w=majority"
   database: "bible_compass"
 Redis:
   redishost: "localhost"
