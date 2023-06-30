@@ -133,7 +133,7 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	}
 
 	user.Token = token
-	user.TokenType = "token"
+	user.TokenType = "bearer"
 	user.DateUpdated = time.Now().Local()
 	user.LastLogin = time.Now().Local()
 	user.Password = ""
