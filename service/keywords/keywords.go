@@ -28,7 +28,8 @@ func AdminCreateKeywords(keywords model.Keywords, id string) (model.KeywordsResp
 
 	// check if key exists
 	keysearch := map[string]any{
-		"keyword": keywords.Keyword,
+		"keyword":     keywords.Keyword,
+		"category_id": idHash,
 	}
 	keyCount, _ := mongodb.MongoCount(constants.KeywordCollection, keysearch)
 	if keyCount >= 1 {
