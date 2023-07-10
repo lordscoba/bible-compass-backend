@@ -8,3 +8,6 @@ Redis:
 server:
   port: "3000"
   secret: "mySecretKey"
+Paystack:
+  initUrl: "https://api.paystack.co/transaction/initialize"
+  paystackKey: "sk_test_d21236670660c3ced374f520275aa2e0c364e844"

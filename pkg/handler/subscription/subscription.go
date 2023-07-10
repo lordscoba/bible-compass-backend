@@ -15,6 +15,37 @@ type Controller struct {
 	Logger   *utility.Logger
 }
 
+func (base *Controller) InitializePayment(c *gin.Context) {
+
+	var id string = c.Param("id")
+	// bind userdetails to User struct
+	var Subscription model.InitializePaymentModel
+	err := c.Bind(&Subscription)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Unable to bind category details", err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	err = base.Validate.Struct(&Subscription)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Validation failed", utility.ValidationResponse(err, base.Validate), nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	InitResponse, msg, code, err := subscription.InitializePaymentOne(Subscription, id)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "payment initialized successfully", InitResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
+
 func (base *Controller) CreateSubscription(c *gin.Context) {
 
 	var id string = c.Param("id")
