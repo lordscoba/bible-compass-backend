@@ -13,6 +13,7 @@ type Configuration struct {
 	Mongodb  MongodbConfiguration
 	Redis    RedisConfiguration
 	Paystack PaystackConfiguration
+	AiBible  AiBibleConfiguration
 }
 
 // Setup initialize configuration

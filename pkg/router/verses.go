@@ -20,6 +20,10 @@ func Verses(r *gin.Engine, validate *validator.Validate, ApiVersion string, logg
 		verseUrl.GET("/admin/getverse/:kid/:Bid", verses.GetVersesById)
 		verseUrl.GET("/admin/verseinfo/:kid", verses.VersesInfo)
 		verseUrl.DELETE("/admin/deleteverse/:kid/:Bid", verses.DeleteVersesById)
+
+		// for AI bible
+		verseUrl.GET("/aibible", verses.AiBible) // this is "?passage=john3:16-18"
+
 	}
 	return r
 }
