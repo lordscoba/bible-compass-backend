@@ -1,6 +1,7 @@
 package subscription
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"time"
@@ -12,9 +13,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+var (
+	amount int64         = 100
+	days   time.Duration = 1         // days
+	hours  time.Duration = 24 * days // hours
+)
+
 func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id string) (model.InitializeResponse, string, int, error) {
 
-	subscriptionRes.Amount = 100
+	subscriptionRes.Amount = amount
 
 	idHash, _ := primitive.ObjectIDFromHex(id)
 
@@ -27,6 +34,17 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 		return model.InitializeResponse{}, "user does not exist", 403, errors.New("user does not exist in database")
 	}
 
+	// check if user has an active sub
+	idSubsearch := map[string]any{
+		"user_id": idHash,
+		"status":  true,
+	}
+
+	idSubCount, _ := mongodb.MongoCount(constants.SubscriptionCollection, idSubsearch)
+	if idSubCount < 1 {
+		return model.InitializeResponse{}, "You have an active subscription", 403, errors.New("you have an active subscription")
+	}
+
 	// get from db
 	var resultTwo model.User
 	result, err := mongodb.MongoGetOne(constants.UserCollection, idsearch)
@@ -36,26 +54,11 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 	result.Decode(&resultTwo)
 	// get from db end
 
-	var subscription model.Subscription
-	subscription.Amount = float64(subscriptionRes.Amount)
-	subscription.UserID = idHash
-	subscription.Username = resultTwo.Username
-	subscription.ID = primitive.NewObjectID()
-	subscription.DateCreated = time.Now().Local()
-	subscription.DateUpdated = time.Now().Local()
-	subscription.Email = subscriptionRes.Email
-	subscription.Reference = primitive.NewObjectID().Hex()
-
-	// save to DB
-	_, err = mongodb.MongoPost(constants.SubscriptionCollection, subscription)
-	if err != nil {
-		return model.InitializeResponse{}, "Unable to save sub to database", 500, err
-	}
-
+	id = primitive.NewObjectID().Hex()
 	payload := map[string]interface{}{
 		"amount":    subscriptionRes.Amount * 100,
 		"email":     subscriptionRes.Email,
-		"reference": subscription.Reference,
+		"reference": id,
 	}
 
 	response, err := paystack.PaystackInitPost(payload)
@@ -74,5 +77,147 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 		return model.InitializeResponse{}, resultOne.Message, response.StatusCode(), errors.New("payment initiation failed")
 	}
 
+	var subscription model.Subscription
+	subscription.Amount = float64(subscriptionRes.Amount)
+	subscription.UserID = idHash
+	subscription.Username = resultTwo.Username
+	subscription.ID = primitive.NewObjectID()
+	subscription.DateCreated = time.Now().Local()
+	subscription.DateUpdated = time.Now().Local()
+	subscription.Email = subscriptionRes.Email
+	subscription.Reference = id
+	subscription.AuthorizationUrl = resultOne.Data.AuthorizationUrl
+	subscription.AccessCode = resultOne.Data.AccessCode
+
+	// time
+	subscription.Type = "premium"
+	subscription.Processing = true
+	subscription.Status = false
+	subscription.Duration = days
+	subscription.DateExpiring = subscription.DateCreated.Add(time.Hour * hours)
+
+	// save to DB
+	_, err = mongodb.MongoPost(constants.SubscriptionCollection, subscription)
+	if err != nil {
+		return model.InitializeResponse{}, "Unable to save sub to database", 500, err
+	}
+
 	return resultOne, "Initiation success", 0, nil
+}
+
+func VerifyPaymentByIdService(rid string) (model.PayVerificationResponse, string, int, error) {
+
+	response, err := paystack.PaystackVerifyGet(rid)
+	if err != nil {
+		return model.PayVerificationResponse{}, "Could not get payment status", response.StatusCode(), err
+	}
+	// fmt.Println(response)
+
+	// Unmarshal the response body into the struct
+	var resultOne model.PayVerificationResponse
+	err = json.Unmarshal(response.Body(), &resultOne)
+	if err != nil {
+		return model.PayVerificationResponse{}, "Could not get payment status", 0, err
+	}
+
+	if !response.IsSuccess() {
+		return model.PayVerificationResponse{}, resultOne.Message, response.StatusCode(), errors.New("could not get payment status")
+	}
+
+	message, code, err1 := UpdateSubPaystack(rid)
+
+	if err1 != nil {
+		return model.PayVerificationResponse{}, message, code, err1
+	}
+
+	return resultOne, "veification data received", 0, nil
+}
+
+func UpdateSubPaystack(rid string) (string, int, error) {
+
+	// update user and sub status
+	// check if user has an active sub
+	idVersearch := map[string]any{
+		"reference": rid,
+	}
+
+	// update user
+	// get from db
+	var resultTwo model.Subscription
+	result, err := mongodb.MongoGetOne(constants.SubscriptionCollection, idVersearch)
+	if err != nil {
+		return "Unable to get subscription from database", 500, err
+	}
+	result.Decode(&resultTwo)
+
+	if resultTwo.DateExpiring.Before(time.Now().Local()) {
+		// updating status in sub collection
+		resultTwo.Status = true
+		resultTwo.Processing = false
+
+		_, err2 := mongodb.MongoUpdate(idVersearch, resultTwo, constants.SubscriptionCollection)
+		if err2 != nil {
+			return "Unable to update subscription to database", 500, err
+		}
+		// get from db end
+		var user model.User
+		user.ID = resultTwo.UserID
+		user.Upgrade = true
+
+		idUsersearch := map[string]primitive.ObjectID{
+			"_id": user.ID,
+		}
+
+		// update user
+		// save to DB
+		_, err = mongodb.MongoUpdate(idUsersearch, user, constants.UserCollection)
+		if err != nil {
+			return "Unable to update user to database", 500, err
+		}
+		// update user ends
+
+	}
+
+	return "Update Success", 200, nil
+}
+
+func UpdateSubStatus() (int64, error) {
+	searchText := map[string]string{}
+	// get from db
+	result, err := mongodb.MongoGetAll(constants.SubscriptionCollection, searchText)
+	if err != nil {
+		return 0, err
+	}
+	var subscription = make([]model.Subscription, 0)
+	result.All(context.TODO(), &subscription)
+
+	var p int64 = 0
+	for _, v := range subscription {
+		if v.DateExpiring.Before(time.Now().Local()) && v.Status {
+			v.Status = false
+			idSubsearch := map[string]primitive.ObjectID{
+				"_id": v.ID,
+			}
+			/// update db
+			_, err := mongodb.MongoUpdate(idSubsearch, v, constants.SubscriptionCollection)
+			if err != nil {
+				return 0, err
+			}
+
+			idUsersearch := map[string]primitive.ObjectID{
+				"_id": v.UserID,
+			}
+			var m model.User
+			m.ID = v.UserID
+			m.Upgrade = false
+			/// update db
+			_, errs := mongodb.MongoUpdate(idUsersearch, v, constants.UserCollection)
+			if errs != nil {
+				return 0, errs
+			}
+
+			p += 1
+		}
+	}
+	return p, nil
 }

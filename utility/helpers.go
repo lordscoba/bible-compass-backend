@@ -25,7 +25,7 @@ func StructToMap(inputStruct interface{}) map[string]interface{} {
 		field := structType.Field(i)
 		jsonTag := field.Tag.Get("json")
 		value := structValue.Field(i).Interface()
-		if !IsEmpty(value) {
+		if !IsEmpty(value) || value == false {
 			resultMap[jsonTag] = value
 		}
 	}

@@ -7,18 +7,21 @@ import (
 )
 
 type Subscription struct {
-	ID           primitive.ObjectID `bson:"_id, omitempty"  json:"id"`
-	Username     string             `bson:"username" json:"username" `
-	Email        string             `bson:"email" json:"email" `
-	UserID       primitive.ObjectID `bson:"user_id" json:"user_id"`
-	Type         string             `bson:"type" json:"type"` //just premium
-	Amount       float64            `bson:"amount" json:"amount"`
-	Status       bool               `bson:"status" json:"status"`
-	Duration     time.Duration      `bson:"duration" json:"duration"`
-	DateCreated  time.Time          `bson:"date_created" json:"date_created"`
-	DateExpiring time.Time          `bson:"date_expiring" json:"date_expiring"`
-	DateUpdated  time.Time          `bson:"date_updated" json:"date_updated"`
-	Reference    string             `bson:"reference" json:"reference" `
+	ID               primitive.ObjectID `bson:"_id, omitempty"  json:"id"`
+	Username         string             `bson:"username" json:"username" `
+	Email            string             `bson:"email" json:"email" `
+	UserID           primitive.ObjectID `bson:"user_id" json:"user_id"`
+	Type             string             `bson:"type" json:"type"` //just premium
+	Amount           float64            `bson:"amount" json:"amount"`
+	Status           bool               `bson:"status" json:"status"`
+	AuthorizationUrl string             `json:"authorization_url"`
+	AccessCode       string             `json:"access_code"`
+	Processing       bool               `json:"processing"`
+	Duration         time.Duration      `bson:"duration" json:"duration"`
+	DateCreated      time.Time          `bson:"date_created" json:"date_created"`
+	DateExpiring     time.Time          `bson:"date_expiring" json:"date_expiring"`
+	DateUpdated      time.Time          `bson:"date_updated" json:"date_updated"`
+	Reference        string             `bson:"reference" json:"reference" `
 }
 
 type SubscriptionResponse struct {
@@ -53,4 +56,10 @@ type InitializeResponse2 struct {
 	AuthorizationUrl string `json:"authorization_url"`
 	AccessCode       string `json:"access_code"`
 	Reference        string `json:"reference"`
+}
+
+type PayVerificationResponse struct {
+	Status  bool                   `json:"status"`
+	Message string                 `json:"message"`
+	Data    map[string]interface{} `json:"data"`
 }

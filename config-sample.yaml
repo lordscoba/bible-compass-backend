@@ -10,7 +10,9 @@ server:
   secret: "mySecretKey"
 Paystack:
   initUrl: "https://api.paystack.co/transaction/initialize"
+  verifyUrl: "https://api.paystack.co/transaction/verify/"
   paystackKey: "sk_test_d21236670660c3ced374f520275aa2e0c364e844"
+  # paystackKey: "pk_test_9c253450a8bdcebc7a4ad37d305334fc90d8ce3a"
 AiBible:
   url: "https://getbible.net/json?passage="
   # key: "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"
