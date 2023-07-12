@@ -12,17 +12,21 @@ import (
 func Subscription(r *gin.Engine, validate *validator.Validate, ApiVersion string, logger *utility.Logger) *gin.Engine {
 	subscription := subscription.Controller{Validate: validate, Logger: logger}
 
-	keywordsUrl := r.Group(fmt.Sprintf("/api/%v", ApiVersion))
+	subUrl := r.Group(fmt.Sprintf("/api/%v", ApiVersion))
 	{
-		keywordsUrl.POST("/admin/createsubscription/:id", subscription.CreateSubscription)
-		keywordsUrl.POST("/user/initialize/:id", subscription.InitializePayment)
-		keywordsUrl.PATCH("/admin/updatesubscription/:id", subscription.UpdateSubscription)
-		keywordsUrl.DELETE("/admin/deletesubscription/:id", subscription.DeleteSubscriptionById)
-		keywordsUrl.GET("/admin/getsubscription", subscription.GetSubscription)
-		keywordsUrl.GET("/admin/getsubscriptionid/:id", subscription.GetSubscriptionById)
-		keywordsUrl.GET("/admin/subscriptioninfo", subscription.SubscriptionInfo)
-		keywordsUrl.GET("/admin/getusersub/:userId", subscription.GetUserSub)
-		keywordsUrl.GET("/admin/getusersubstats/:userId", subscription.GetUserSubStats)
+		subUrl.POST("/admin/createsubscription/:id", subscription.CreateSubscription)
+		subUrl.PATCH("/admin/updatesubscription/:id", subscription.UpdateSubscription)
+		subUrl.DELETE("/admin/deletesubscription/:id", subscription.DeleteSubscriptionById)
+		subUrl.GET("/admin/getsubscription", subscription.GetSubscription)
+		subUrl.GET("/admin/getsubscriptionid/:id", subscription.GetSubscriptionById)
+		subUrl.GET("/admin/subscriptioninfo", subscription.SubscriptionInfo)
+		subUrl.GET("/admin/getusersub/:userId", subscription.GetUserSub)
+		subUrl.GET("/admin/getusersubstats/:userId", subscription.GetUserSubStats)
+
+		// paystack
+		subUrl.POST("/user/initialize/:id", subscription.InitializePayment)      // user id
+		subUrl.GET("/user/paystack/verify/:rid", subscription.VerifyPaymentById) // reference id
+
 	}
 	return r
 }

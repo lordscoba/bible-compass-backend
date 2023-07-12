@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
 	"github.com/lordscoba/bible_compass_backend/service/category"
+	"github.com/lordscoba/bible_compass_backend/service/subscription"
 	"github.com/lordscoba/bible_compass_backend/utility"
 )
 
@@ -78,6 +79,8 @@ func (base *Controller) UpdateCategory(c *gin.Context) {
 }
 
 func (base *Controller) GetCategory(c *gin.Context) {
+	//update sub
+	subscription.UpdateSubStatus()
 
 	searchText := map[string]string{
 		"category_name": c.DefaultQuery("category_name", ""),

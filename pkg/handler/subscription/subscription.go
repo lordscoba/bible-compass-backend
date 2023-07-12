@@ -46,6 +46,20 @@ func (base *Controller) InitializePayment(c *gin.Context) {
 
 }
 
+func (base *Controller) VerifyPaymentById(c *gin.Context) {
+	var rid string = c.Param("rid")
+	subscriptionResponse, msg, code, err := subscription.VerifyPaymentByIdService(rid)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Subscription Gotten successfully", subscriptionResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
+
 func (base *Controller) CreateSubscription(c *gin.Context) {
 
 	var id string = c.Param("id")
