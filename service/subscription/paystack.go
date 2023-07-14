@@ -41,7 +41,7 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 	}
 
 	idSubCount, _ := mongodb.MongoCount(constants.SubscriptionCollection, idSubsearch)
-	if idSubCount < 1 {
+	if idSubCount >= 1 {
 		return model.InitializeResponse{}, "You have an active subscription", 403, errors.New("you have an active subscription")
 	}
 
@@ -93,6 +93,7 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 	subscription.Type = "premium"
 	subscription.Processing = true
 	subscription.Status = false
+	subscription.Failed = false
 	subscription.Duration = days
 	subscription.DateExpiring = subscription.DateCreated.Add(time.Hour * hours)
 
@@ -121,19 +122,20 @@ func VerifyPaymentByIdService(rid string) (model.PayVerificationResponse, string
 	}
 
 	if !response.IsSuccess() {
-		return model.PayVerificationResponse{}, resultOne.Message, response.StatusCode(), errors.New("could not get payment status")
+		return model.PayVerificationResponse{}, resultOne.Message, response.StatusCode(), errors.New("could not get payment verification try again later")
 	}
 
-	message, code, err1 := UpdateSubPaystack(rid)
+	message, code, err1 := UpdateSubPaystack(rid, resultOne.Data.Status)
 
 	if err1 != nil {
 		return model.PayVerificationResponse{}, message, code, err1
 	}
+	// fmt.Println(resultOne.Status)
 
 	return resultOne, "veification data received", 0, nil
 }
 
-func UpdateSubPaystack(rid string) (string, int, error) {
+func UpdateSubPaystack(rid string, status string) (string, int, error) {
 
 	// update user and sub status
 	// check if user has an active sub
@@ -150,16 +152,20 @@ func UpdateSubPaystack(rid string) (string, int, error) {
 	}
 	result.Decode(&resultTwo)
 
-	if resultTwo.DateExpiring.Before(time.Now().Local()) {
+	if resultTwo.DateExpiring.After(time.Now().Local()) && status == "success" {
 		// updating status in sub collection
+
 		resultTwo.Status = true
 		resultTwo.Processing = false
+		resultTwo.Failed = false
 
 		_, err2 := mongodb.MongoUpdate(idVersearch, resultTwo, constants.SubscriptionCollection)
 		if err2 != nil {
 			return "Unable to update subscription to database", 500, err
 		}
-		// get from db end
+
+		// update status ends
+		// update user
 		var user model.User
 		user.ID = resultTwo.UserID
 		user.Upgrade = true
@@ -176,6 +182,32 @@ func UpdateSubPaystack(rid string) (string, int, error) {
 		}
 		// update user ends
 
+	} else if resultTwo.DateExpiring.After(time.Now().Local()) && status == "failed" {
+		// updating status in sub collection
+		resultTwo.Status = false
+		resultTwo.Processing = false
+		resultTwo.Failed = true
+
+		_, err2 := mongodb.MongoUpdate(idVersearch, resultTwo, constants.SubscriptionCollection)
+		if err2 != nil {
+			return "Unable to update subscription to database", 500, err
+		}
+		// update user
+		var user model.User
+		user.ID = resultTwo.UserID
+		user.Upgrade = false
+
+		idUsersearch := map[string]primitive.ObjectID{
+			"_id": user.ID,
+		}
+
+		// update user
+		// save to DB
+		_, err = mongodb.MongoUpdate(idUsersearch, user, constants.UserCollection)
+		if err != nil {
+			return "Unable to update user to database", 500, err
+		}
+		// update user ends
 	}
 
 	return "Update Success", 200, nil
@@ -211,7 +243,7 @@ func UpdateSubStatus() (int64, error) {
 			m.ID = v.UserID
 			m.Upgrade = false
 			/// update db
-			_, errs := mongodb.MongoUpdate(idUsersearch, v, constants.UserCollection)
+			_, errs := mongodb.MongoUpdate(idUsersearch, m, constants.UserCollection)
 			if errs != nil {
 				return 0, errs
 			}

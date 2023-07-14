@@ -10,7 +10,7 @@ import (
 
 func (base *Controller) AiBible(c *gin.Context) {
 
-	var passage string = c.DefaultQuery("passage", "john3:16")
+	var passage string = c.DefaultQuery("passage", "john3:1-10")
 
 	// var kid string = c.Param("kid")
 	// Find := map[string]string{

@@ -14,9 +14,10 @@ type Subscription struct {
 	Type             string             `bson:"type" json:"type"` //just premium
 	Amount           float64            `bson:"amount" json:"amount"`
 	Status           bool               `bson:"status" json:"status"`
+	Processing       bool               `json:"processing"`
+	Failed           bool               `json:"failed"`
 	AuthorizationUrl string             `json:"authorization_url"`
 	AccessCode       string             `json:"access_code"`
-	Processing       bool               `json:"processing"`
 	Duration         time.Duration      `bson:"duration" json:"duration"`
 	DateCreated      time.Time          `bson:"date_created" json:"date_created"`
 	DateExpiring     time.Time          `bson:"date_expiring" json:"date_expiring"`
@@ -59,7 +60,16 @@ type InitializeResponse2 struct {
 }
 
 type PayVerificationResponse struct {
-	Status  bool                   `json:"status"`
-	Message string                 `json:"message"`
-	Data    map[string]interface{} `json:"data"`
+	Status  bool             `json:"status"`
+	Message string           `json:"message"`
+	Data    VerificationData `json:"data"`
+}
+
+type VerificationData struct {
+	Amount          int    `json:"amount"`
+	Currency        string `json:"currency"`
+	Channel         string `json:"channel"`
+	GatewayResponse string `json:"gateway_response"`
+	Reference       string `json:"reference"`
+	Status          string `json:"status"`
 }
