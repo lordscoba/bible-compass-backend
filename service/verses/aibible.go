@@ -29,7 +29,7 @@ func AiBibleService(aibible string) (model.Scripture, string, int, error) {
 
 	if err != nil {
 		fmt.Println("Error:", err)
-		return model.Scripture{}, err.Error(), 0, err
+		return model.Scripture{}, err.Error(), 403, err
 	}
 
 	return data, "", 0, nil

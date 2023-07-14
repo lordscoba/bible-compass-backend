@@ -81,7 +81,7 @@ func AdminUpdateSubscription(subscription model.Subscription, id string) (model.
 		return model.SubscriptionResponse{}, "subscription does not exist", 403, errors.New("user does not exist in database")
 	}
 
-	subscription.UserID = idHash
+	subscription.ID = idHash
 	subscription.DateUpdated = time.Now().Local()
 	// save to DB
 	_, err := mongodb.MongoUpdate(idsearch, subscription, constants.SubscriptionCollection)
