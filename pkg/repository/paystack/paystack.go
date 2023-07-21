@@ -1,7 +1,11 @@
 package paystack
 
 import (
+	"log"
+	"os"
+
 	"github.com/go-resty/resty/v2"
+	"github.com/joho/godotenv"
 	"github.com/lordscoba/bible_compass_backend/internal/config"
 )
 
@@ -34,7 +38,13 @@ func PaystackVerifyGet(reference string) (*resty.Response, error) {
 
 	// Set up the Paystack API endpoint
 	url := config.GetConfig().Paystack.VerifyUrl
-	bearer := config.GetConfig().Paystack.PaystackKey
+
+	// Load the .env file into environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("Error loading .env file")
+	}
+	// bearer := config.GetConfig().Paystack.PaystackKey
+	bearer := os.Getenv("PAYSTACK_KEY")
 
 	// Create a new Resty client
 	client := resty.New()

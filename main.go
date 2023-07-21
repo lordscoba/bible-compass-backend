@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
 	"github.com/lordscoba/bible_compass_backend/internal/config"
 	"github.com/lordscoba/bible_compass_backend/pkg/repository/storage/mongodb"
 	"github.com/lordscoba/bible_compass_backend/pkg/router"
@@ -20,6 +21,11 @@ func init() {
 
 }
 func main() {
+	// Load the .env file into environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("Error loading .env file")
+	}
+
 	//Load config
 	logger := utility.NewLogger()
 	//  getConfig := config.GetConfig()
@@ -27,9 +33,9 @@ func main() {
 	r := router.Setup(validatorRef, logger)
 
 	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	// if port == "" {
+	// 	port = "8080"
+	// }
 
 	//  logger.Info("Server is starting at 127.0.0.1:%s", getConfig.Server.Port)
 	//  log.Fatal(r.Run(":" + getConfig.Server.Port))

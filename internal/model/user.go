@@ -7,20 +7,22 @@ import (
 )
 
 type User struct {
-	ID              primitive.ObjectID `bson:"_id, omitempty" json:"id"`
-	Username        string             `bson:"username" json:"username"`
-	Name            string             `bson:"name" json:"name"`
-	Email           string             `bson:"email" json:"email" validate:"required,email"`
-	Type            string             `bson:"type" json:"type" `
-	Password        string             `bson:"password" json:"password"`
-	Upgrade         bool               `bson:"upgrade" json:"upgrade"`
-	ConfirmPassword string             `bson:"confirm_password" json:"confirm_password"`
-	DateCreated     time.Time          `bson:"date_created" json:"date_created"`
-	DateUpdated     time.Time          `bson:"date_updated" json:"date_updated"`
-	Token           string             `bson:"token" json:"token"`
-	TokenType       string             `bson:"token_type" json:"token_type"`
-	LastLogin       time.Time          `bson:"last_login" json:"last_login"`
-	IsVerified      bool               `bson:"is_verified" json:"is_verified"`
+	ID               primitive.ObjectID `bson:"_id, omitempty" json:"id"`
+	Username         string             `bson:"username" json:"username"`
+	Name             string             `bson:"name" json:"name"`
+	Email            string             `bson:"email" json:"email" validate:"required,email"`
+	Type             string             `bson:"type" json:"type" `
+	Password         string             `bson:"password" json:"password"`
+	Upgrade          bool               `bson:"upgrade" json:"upgrade"`
+	ConfirmPassword  string             `bson:"confirm_password" json:"confirm_password"`
+	DateCreated      time.Time          `bson:"date_created" json:"date_created"`
+	DateUpdated      time.Time          `bson:"date_updated" json:"date_updated"`
+	Token            string             `bson:"token" json:"token"`
+	TokenType        string             `bson:"token_type" json:"token_type"`
+	VerificationCode string             `bson:"verification_code" json:"verification_code"`
+	VerificationTime time.Time          `bson:"verification_time" json:"verification_time"`
+	LastLogin        time.Time          `bson:"last_login" json:"last_login"`
+	IsVerified       bool               `bson:"is_verified" json:"is_verified"`
 }
 
 type UserResponse struct {
@@ -33,6 +35,10 @@ type UserResponse struct {
 	Token     string    `json:"token"`
 	TokenType string    `json:"token_type"`
 	LastLogin time.Time `json:"last_login"`
+}
+
+type VerifyModel struct {
+	Email string `bson:"email" json:"email"`
 }
 
 type UserInfoResponse struct {
