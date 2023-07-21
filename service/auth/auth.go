@@ -3,11 +3,13 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/config"
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
+	"github.com/lordscoba/bible_compass_backend/pkg/repository/mailer"
 	"github.com/lordscoba/bible_compass_backend/pkg/repository/storage/mongodb"
 	"github.com/lordscoba/bible_compass_backend/utility"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -67,6 +69,22 @@ func AuthSignUp(user model.User) (model.UserResponse, string, int, error) {
 	_, err := mongodb.MongoPost(constants.UserCollection, user)
 	if err != nil {
 		return model.UserResponse{}, "Unable to save user to database", 500, err
+	}
+
+	emailData := utility.EmailData{
+		Email: user.Email,
+	}
+
+	emailContent, err := utility.GenerateRegistrationHTMLEmail(emailData)
+	if err != nil {
+		fmt.Println("Error generating email content:", err)
+		// return model.UserResponse{}, "Unable Generate Email", 403, err
+	}
+
+	err = mailer.SendMail(user.Email, emailContent)
+	if err != nil {
+		fmt.Println("Error generating email content:", err)
+		// return model.UserResponse{}, "Unable to send email", 403, err
 	}
 
 	userResponse := model.UserResponse{
@@ -157,4 +175,72 @@ func AuthLogin(user model.User) (model.UserResponse, string, int, error) {
 	}
 
 	return userResponse, "", 0, nil
+}
+
+func VerificationService(user model.VerifyModel) (model.VerifyModel, string, int, error) {
+
+	// check for input data
+	if user.Email == "" {
+		return model.VerifyModel{}, "Enter Email", 403, errors.New("email is missing")
+	}
+
+	// check if email exists
+	emailsearch := map[string]any{
+		"email": user.Email,
+	}
+	emailCount, _ := mongodb.MongoCount(constants.UserCollection, emailsearch)
+	if emailCount < 1 {
+		return model.VerifyModel{}, "email is not registered", 403, errors.New("email does not exist in database")
+	}
+
+	// get user details
+	var resultOne model.User
+	result, err := mongodb.MongoGetOne(constants.UserCollection, emailsearch)
+	if err != nil {
+		return model.VerifyModel{}, "Unable to get users details from database", 500, err
+	}
+	result.Decode(&resultOne)
+	// get from db end
+
+	// update db token
+	// generatedCode := primitive.NewObjectID().Hex()
+	// fmt.Println(emailsearch)
+	// fmt.Println(generatedCode)
+
+	resultOne.VerificationCode = primitive.NewObjectID().Hex()
+	resultOne.VerificationTime = time.Now().Local()
+	fmt.Println(resultOne)
+
+	// save to DB
+	_, err = mongodb.MongoUpdate(emailsearch, resultOne, constants.UserCollection)
+	if err != nil {
+		return model.VerifyModel{}, "Unable to save user to database", 500, err
+	}
+
+	emailData := utility.EmailData{
+		Name:       resultOne.Name,
+		Email:      user.Email,
+		Link:       "this is a link",
+		ExpiryTime: "1 hr",
+	}
+
+	emailContent, err := utility.GenerateHTMLEmail(emailData)
+	if err != nil {
+
+		// fmt.Println("Error generating email content:", err)
+		return model.VerifyModel{}, "Unable Generate Email", 403, err
+	}
+	err = mailer.SendMail("e2scoba2tm@gmail.com", emailContent)
+
+	if err != nil {
+
+		// fmt.Println("Error generating email content:", err)
+		return model.VerifyModel{}, "Unable to send email", 403, err
+	}
+
+	VericationResponse := model.VerifyModel{
+		Email: user.Email,
+	}
+
+	return VericationResponse, "", 0, nil
 }

@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/lordscoba/bible_compass_backend/internal/config"
 	"github.com/lordscoba/bible_compass_backend/utility"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,9 +25,14 @@ func Connection() (db *mongo.Client) {
 }
 
 func ConnectToDB() *mongo.Client {
+	// Load the .env file into environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("Error loading .env file")
+	}
 	var err error
 	logger := utility.NewLogger()
-	uri := config.GetConfig().Mongodb.Url
+	uri := os.Getenv("MONGO_URL")
+	// uri := config.GetConfig().Mongodb.Url
 	mongo_connection := options.Client().ApplyURI(uri)
 	mongoClient, err = mongo.Connect(ctx, mongo_connection)
 	if err != nil {

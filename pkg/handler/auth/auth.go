@@ -74,3 +74,26 @@ func (base *Controller) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+
+func (base *Controller) Verify(c *gin.Context) {
+
+	// bind userdetails to User struct
+	var User model.VerifyModel
+	err := c.Bind(&User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Unable to bind user signup details", err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	userResponse, msg, code, err := auth.VerificationService(User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "message sent successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
