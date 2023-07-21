@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
@@ -172,6 +173,12 @@ func AdminGetKeywords(catid string, searchText map[string]string) ([]model.Keywo
 
 	var keywords = make([]model.Keywords, 0)
 	result.All(context.TODO(), &keywords)
+
+	// Sort the slice alphabetically based on the fieldToSortBy
+	sort.Slice(keywords, func(i, j int) bool {
+		return keywords[i].Keyword < keywords[j].Keyword
+	})
+
 	return keywords, "", 0, nil
 }
 
