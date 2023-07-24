@@ -217,30 +217,119 @@ func VerificationService(user model.VerifyModel) (model.VerifyModel, string, int
 		return model.VerifyModel{}, "Unable to save user to database", 500, err
 	}
 
+	host := "https://www.bible-compass.com/verify"
+	vid := "?verification_id=" + resultOne.VerificationCode
+	vemail := "&email=" + user.Email
+	vuserid := "&user_id=" + resultOne.ID.Hex()
+	vlink := host + vid + vemail + vuserid
+
+	fmt.Println(vlink)
+
 	emailData := utility.EmailData{
 		Name:       resultOne.Name,
 		Email:      user.Email,
-		Link:       "this is a link",
+		Link:       vlink,
 		ExpiryTime: "1 hr",
 	}
 
-	emailContent, err := utility.GenerateHTMLEmail(emailData)
-	if err != nil {
+	_, err3 := utility.GenerateHTMLEmail(emailData)
+	if err3 != nil {
 
 		// fmt.Println("Error generating email content:", err)
-		return model.VerifyModel{}, "Unable Generate Email", 403, err
+		return model.VerifyModel{}, "Unable Generate Email", 403, err3
 	}
-	err = mailer.SendMail("e2scoba2tm@gmail.com", emailContent)
 
-	if err != nil {
+	// err = mailer.SendMail("e2scoba2tm@gmail.com", emailContent)
 
-		// fmt.Println("Error generating email content:", err)
-		return model.VerifyModel{}, "Unable to send email", 403, err
-	}
+	// if err != nil {
+
+	// 	// fmt.Println("Error generating email content:", err)
+	// 	return model.VerifyModel{}, "Unable to send email", 403, err
+	// }
 
 	VericationResponse := model.VerifyModel{
 		Email: user.Email,
 	}
 
 	return VericationResponse, "", 0, nil
+}
+
+func ChangePasswordService(user model.ChangePassword) (model.ChangePassword, string, int, error) {
+
+	// check if required data is entered
+	if user.Email == "" {
+		return model.ChangePassword{}, "Enter Email", 403, errors.New("email is missing")
+	}
+	if user.Password == "" {
+		return model.ChangePassword{}, "Enter Password", 403, errors.New("password is missing")
+	}
+	if user.ConfirmPassword == "" {
+		return model.ChangePassword{}, "Enter Password", 403, errors.New("change password is missing")
+	}
+
+	// check if id exists
+	idHash, _ := primitive.ObjectIDFromHex(user.UserId)
+	idsearch := map[string]any{
+		"_id": idHash,
+	}
+	idCount, _ := mongodb.MongoCount(constants.UserCollection, idsearch)
+
+	if idCount < 1 {
+		return model.ChangePassword{}, "id does not exist", 403, errors.New("id does not exist")
+	}
+
+	// check if verification exist
+	if user.VerificationCode == "" {
+		return model.ChangePassword{}, "verification code is missing", 403, errors.New("verification code is missing")
+	}
+
+	vcodesearch := map[string]any{
+		"verification_code": user.VerificationCode,
+	}
+	vcodeCount, _ := mongodb.MongoCount(constants.UserCollection, vcodesearch)
+
+	if vcodeCount < 1 {
+		return model.ChangePassword{}, "verfication code is not available", 403, errors.New("verfication code is not available")
+	}
+
+	// get user details
+	var resultOne model.User
+	result, err := mongodb.MongoGetOne(constants.UserCollection, vcodesearch)
+	if err != nil {
+		return model.ChangePassword{}, "Unable to get users details from database", 500, err
+	}
+	result.Decode(&resultOne)
+	// get from db end
+
+	// check if verification code  has expired
+	verificationExpiring := resultOne.VerificationTime.Add(time.Hour * 1)
+	// fmt.Println(verificationExpiring.Local())
+	// fmt.Println(resultOne.VerificationTime.Local())
+	// fmt.Println(time.Now().Local())
+
+	if verificationExpiring.Local().Before(time.Now().Local()) {
+		return model.ChangePassword{}, "verfication link has expired", 403, errors.New("verfication link has expired")
+	}
+
+	// check if passwords match
+	if user.Password != user.ConfirmPassword {
+		return model.ChangePassword{}, "Passwords does not match", 403, errors.New("passwords does not match")
+	}
+
+	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+
+	resultOne.Password = string(hash)
+	resultOne.ID = idHash
+	resultOne.DateUpdated = time.Now().Local()
+	// resultOne.VerificationCode = ""
+
+	// save to DB
+	_, err = mongodb.MongoUpdate(vcodesearch, resultOne, constants.UserCollection)
+	if err != nil {
+		return model.ChangePassword{}, "Unable to save user to database", 500, err
+	}
+
+	// fmt.Println(user)
+
+	return user, "", 0, nil
 }
