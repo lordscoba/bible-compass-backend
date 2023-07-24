@@ -223,7 +223,7 @@ func VerificationService(user model.VerifyModel) (model.VerifyModel, string, int
 	vuserid := "&user_id=" + resultOne.ID.Hex()
 	vlink := host + vid + vemail + vuserid
 
-	fmt.Println(vlink)
+	// fmt.Println(vlink)
 
 	emailData := utility.EmailData{
 		Name:       resultOne.Name,
@@ -232,20 +232,19 @@ func VerificationService(user model.VerifyModel) (model.VerifyModel, string, int
 		ExpiryTime: "1 hr",
 	}
 
-	_, err3 := utility.GenerateHTMLEmail(emailData)
+	emailContent, err3 := utility.GenerateHTMLEmail(emailData)
 	if err3 != nil {
 
 		// fmt.Println("Error generating email content:", err)
 		return model.VerifyModel{}, "Unable Generate Email", 403, err3
 	}
 
-	// err = mailer.SendMail("e2scoba2tm@gmail.com", emailContent)
+	err = mailer.SendMail(user.Email, emailContent)
 
-	// if err != nil {
-
-	// 	// fmt.Println("Error generating email content:", err)
-	// 	return model.VerifyModel{}, "Unable to send email", 403, err
-	// }
+	if err != nil {
+		// fmt.Println("Error generating email content:", err)
+		return model.VerifyModel{}, "Unable to send email", 403, err
+	}
 
 	VericationResponse := model.VerifyModel{
 		Email: user.Email,
@@ -303,9 +302,9 @@ func ChangePasswordService(user model.ChangePassword) (model.ChangePassword, str
 
 	// check if verification code  has expired
 	verificationExpiring := resultOne.VerificationTime.Add(time.Hour * 1)
-	fmt.Println(verificationExpiring)
-	fmt.Println(resultOne.VerificationTime)
-	fmt.Println(time.Now().In(time.UTC))
+	// fmt.Println(verificationExpiring)
+	// fmt.Println(resultOne.VerificationTime)
+	// fmt.Println(time.Now().In(time.UTC))
 
 	if verificationExpiring.Before(time.Now().In(time.UTC)) {
 		return model.ChangePassword{}, "verfication link has expired", 403, errors.New("verfication link has expired")
@@ -321,7 +320,7 @@ func ChangePasswordService(user model.ChangePassword) (model.ChangePassword, str
 	resultOne.Password = string(hash)
 	resultOne.ID = idHash
 	resultOne.DateUpdated = time.Now().Local()
-	// resultOne.VerificationCode = ""
+	resultOne.VerificationCode = ""
 
 	// save to DB
 	_, err = mongodb.MongoUpdate(vcodesearch, resultOne, constants.UserCollection)
