@@ -303,11 +303,11 @@ func ChangePasswordService(user model.ChangePassword) (model.ChangePassword, str
 
 	// check if verification code  has expired
 	verificationExpiring := resultOne.VerificationTime.Add(time.Hour * 1)
-	fmt.Println(verificationExpiring.Local())
-	fmt.Println(resultOne.VerificationTime.Local())
-	fmt.Println(time.Now().Local())
+	fmt.Println(verificationExpiring)
+	fmt.Println(resultOne.VerificationTime)
+	fmt.Println(time.Now().In(time.UTC))
 
-	if verificationExpiring.Local().Before(time.Now().Local()) {
+	if verificationExpiring.Before(time.Now().In(time.UTC)) {
 		return model.ChangePassword{}, "verfication link has expired", 403, errors.New("verfication link has expired")
 	}
 
