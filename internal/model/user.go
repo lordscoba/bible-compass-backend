@@ -41,6 +41,15 @@ type VerifyModel struct {
 	Email string `bson:"email" json:"email"`
 }
 
+type ChangePassword struct {
+	ID               primitive.ObjectID `bson:"_id, omitempty" json:"id"`
+	VerificationCode string             `bson:"verification_code" json:"verification_code"`
+	UserId           string             `bson:"user_id" json:"user_id"`
+	Email            string             `bson:"email" json:"email"`
+	Password         string             `bson:"password" json:"password"`
+	ConfirmPassword  string             `bson:"confirm_password" json:"confirm_password"`
+}
+
 type UserInfoResponse struct {
 	TotalUsers      int64 `json:"total_users"`
 	SubscribedUsers int64 `json:"subscribed_users"`

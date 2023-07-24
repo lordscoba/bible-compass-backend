@@ -97,3 +97,26 @@ func (base *Controller) Verify(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+
+func (base *Controller) ChangePassword(c *gin.Context) {
+
+	// bind userdetails to User struct
+	var User model.ChangePassword
+	err := c.Bind(&User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Unable to bind user signup details", err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	userResponse, msg, code, err := auth.ChangePasswordService(User)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "password changed successfully", userResponse)
+	c.JSON(http.StatusOK, rd)
+
+}
