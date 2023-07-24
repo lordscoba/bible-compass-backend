@@ -243,7 +243,7 @@ func VerificationService(user model.VerifyModel) (model.VerifyModel, string, int
 
 	if err != nil {
 		// fmt.Println("Error generating email content:", err)
-		return model.VerifyModel{}, "Unable to send email", 403, err
+		return model.VerifyModel{}, err.Error(), 403, err
 	}
 
 	VericationResponse := model.VerifyModel{
