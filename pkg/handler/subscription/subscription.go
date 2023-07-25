@@ -157,6 +157,7 @@ func (base *Controller) GetSubscriptionById(c *gin.Context) {
 }
 
 func (base *Controller) GetUserSub(c *gin.Context) {
+	subscription.UpdateSubStatus()
 	var userId string = c.Param("userId")
 
 	searchText := map[string]string{
