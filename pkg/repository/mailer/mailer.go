@@ -14,7 +14,7 @@ func SendMail(recipientEmail string, msg string) error {
 	// Load the .env file into environment variables
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("Error loading .env file")
-		return err
+		// return err
 	}
 	SMTP_PORT := os.Getenv("SMTP_PORT")
 	SMTP_HOST := os.Getenv("SMTP_HOST")
