@@ -26,8 +26,6 @@ func PaystackInitPost(payload map[string]interface{}) (*resty.Response, error) {
 	logger := utility.NewLogger()
 	bearer := os.Getenv("PAYSTACK_KEY")
 
-	fmt.Println(url)
-
 	// Create a new Resty client
 	client := resty.New()
 
