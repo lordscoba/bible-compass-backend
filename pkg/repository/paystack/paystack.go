@@ -16,7 +16,7 @@ func PaystackInitPost(payload map[string]interface{}) (*resty.Response, error) {
 	// Load the .env file into environment variables
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("Error loading .env file")
-		return nil, err
+		// return nil, err
 	}
 
 	// Set up the Paystack API endpoint
@@ -25,6 +25,8 @@ func PaystackInitPost(payload map[string]interface{}) (*resty.Response, error) {
 
 	logger := utility.NewLogger()
 	bearer := os.Getenv("PAYSTACK_KEY")
+
+	fmt.Println(url)
 
 	// Create a new Resty client
 	client := resty.New()
