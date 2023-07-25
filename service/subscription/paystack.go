@@ -249,6 +249,31 @@ func UpdateSubStatus() (int64, error) {
 			}
 
 			p += 1
+		} else if v.DateExpiring.After(time.Now().Local()) && !v.Processing && !v.Failed {
+			v.Status = true
+			idSubsearch := map[string]primitive.ObjectID{
+				"_id": v.ID,
+			}
+			/// update db
+			_, err := mongodb.MongoUpdate(idSubsearch, v, constants.SubscriptionCollection)
+			if err != nil {
+				return 0, err
+			}
+
+			idUsersearch := map[string]primitive.ObjectID{
+				"_id": v.UserID,
+			}
+			var m model.User
+			m.ID = v.UserID
+			m.Upgrade = true
+			/// update db
+			_, errs := mongodb.MongoUpdate(idUsersearch, m, constants.UserCollection)
+			if errs != nil {
+				return 0, errs
+			}
+
+			p += 1
+
 		}
 	}
 	return p, nil
