@@ -1,6 +1,7 @@
 package paystack
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -13,7 +14,14 @@ func PaystackInitPost(payload map[string]interface{}) (*resty.Response, error) {
 
 	// Set up the Paystack API endpoint
 	url := config.GetConfig().Paystack.InitUrl
-	bearer := config.GetConfig().Paystack.PaystackKey
+	// bearer := config.GetConfig().Paystack.PaystackKey
+
+	// Load the .env file into environment variables
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+		return nil, err
+	}
+	bearer := os.Getenv("PAYSTACK_KEY")
 
 	// Create a new Resty client
 	client := resty.New()
@@ -28,6 +36,7 @@ func PaystackInitPost(payload map[string]interface{}) (*resty.Response, error) {
 		Post(url)
 
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
