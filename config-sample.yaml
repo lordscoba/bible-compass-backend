@@ -13,5 +13,5 @@ Paystack:
   verifyUrl: "https://api.paystack.co/transaction/verify/"
   # paystackKey: "sk_test_d21236670660c3ced374f520275aa2e0c364e844"
 AiBible:
-  url: "https://getbible.net/json?passage="
+  url: "https://archived.getbible.net/json?passage="
   # key: "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"
