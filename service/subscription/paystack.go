@@ -14,9 +14,10 @@ import (
 )
 
 var (
-	amount int64         = 100
-	days   time.Duration = 1         // days
-	hours  time.Duration = 24 * days // hours
+	currency string        = "USD"
+	amount   int64         = 2
+	days     time.Duration = 30        // days
+	hours    time.Duration = 24 * days // hours
 )
 
 func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id string) (model.InitializeResponse, string, int, error) {
@@ -59,6 +60,7 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 		"amount":    subscriptionRes.Amount * 100,
 		"email":     subscriptionRes.Email,
 		"reference": id,
+		"currency":  currency,
 	}
 
 	response, err := paystack.PaystackInitPost(payload)

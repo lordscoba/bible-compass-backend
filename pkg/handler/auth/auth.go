@@ -93,7 +93,7 @@ func (base *Controller) Verify(c *gin.Context) {
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "message sent successfully", userResponse)
+	rd := utility.BuildSuccessResponse(http.StatusCreated, "message sent successfully, Please check your spam if you don't find the message in the inbox", userResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
