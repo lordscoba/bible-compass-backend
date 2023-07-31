@@ -1,6 +1,4 @@
 mongodb:
-  # url: "mongodb+srv://e2scoba:blockchain@cluster0.b8qy1lb.mongodb.net/?retryWrites=true&w=majority"
-  # url: "mongodb+srv://lordscoba:blockchain@cluster0.ah1nlqp.mongodb.net/?retryWrites=true&w=majority"
   database: "bible_compass"
 Redis:
   redishost: "localhost"
@@ -11,7 +9,5 @@ server:
 Paystack:
   initUrl: "https://api.paystack.co/transaction/initialize"
   verifyUrl: "https://api.paystack.co/transaction/verify/"
-  # paystackKey: "sk_test_d21236670660c3ced374f520275aa2e0c364e844"
 AiBible:
   url: "https://archived.getbible.net/json?passage="
-  # key: "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"
