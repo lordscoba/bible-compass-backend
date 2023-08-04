@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	currency string        = "USD"
-	amount   int64         = 2
+	currency string        = "NGN"
+	amount   int64         = 1700
 	days     time.Duration = 30        // days
 	hours    time.Duration = 24 * days // hours
 )
