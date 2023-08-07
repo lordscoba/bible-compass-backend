@@ -99,3 +99,33 @@ func SearchFilter(search map[string]string) (f interface{}) {
 	return bson.M{}
 
 }
+
+func StructToMapForArrayBug(inputStruct interface{}) map[string]interface{} {
+	structType := reflect.TypeOf(inputStruct)
+	structValue := reflect.ValueOf(inputStruct)
+
+	if structType.Kind() != reflect.Struct {
+		return nil
+	}
+	resultMap := make(map[string]interface{})
+
+	for i := 1; i < structType.NumField(); i++ {
+		field := structType.Field(i)
+		jsonTag := field.Tag.Get("json")
+		value := structValue.Field(i).Interface()
+		if !IsEmpty(value) || value == false || isArray(value) {
+			resultMap[jsonTag] = value
+		}
+	}
+
+	return resultMap
+}
+
+func isArray(value interface{}) bool {
+	switch v := reflect.ValueOf(value); v.Kind() {
+	case reflect.Array, reflect.Slice, reflect.Map:
+		return true
+	default:
+		return false
+	}
+}
