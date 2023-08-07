@@ -196,3 +196,26 @@ func MongoUpdate[T, S any](filter map[string]T, updateEntries S, collection stri
 
 	return result, nil
 }
+
+func MongoUpdateForArrayBug[T, S any](filter map[string]T, updateEntries S, collection string) (*mongo.UpdateResult, error) {
+	c := getCollection(collection)
+
+	// converting map to bsonD
+	filterBsonD := utility.MapToBsonD(filter)
+
+	// converting map to bsonM
+	updateMap := utility.StructToMapForArrayBug(updateEntries)
+	updateMapData := make(bson.M, 0)
+	for i, j := range updateMap {
+		updateMapData[i] = j
+	}
+	update := bson.M{"$set": updateMapData}
+
+	result, err := c.UpdateOne(ctx, filterBsonD, update)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

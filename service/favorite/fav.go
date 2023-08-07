@@ -169,7 +169,7 @@ func UnLikeKeywordServive(email, keyword string) (model.Fav, string, int, error)
 		//deleting from slice
 		userFav.Fav = utility.DeleteElement(resultFavs.Fav, index)
 		// save to DB
-		_, err = mongodb.MongoUpdate(usersearch, userFav, constants.FavCollection)
+		_, err = mongodb.MongoUpdateForArrayBug(usersearch, userFav, constants.FavCollection)
 		if err != nil {
 			return model.Fav{}, "Unable to save user to database", 500, err
 		}
