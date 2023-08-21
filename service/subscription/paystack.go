@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
 	"github.com/lordscoba/bible_compass_backend/internal/model"
+	raterep "github.com/lordscoba/bible_compass_backend/pkg/repository/exchangerate"
 	"github.com/lordscoba/bible_compass_backend/pkg/repository/paystack"
 	"github.com/lordscoba/bible_compass_backend/pkg/repository/storage/mongodb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,14 +17,23 @@ import (
 
 var (
 	currency string        = "NGN"
-	amount   int64         = 1700
+	amount   int64         = 2         //USD
 	days     time.Duration = 30        // days
 	hours    time.Duration = 24 * days // hours
 )
 
 func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id string) (model.InitializeResponse, string, int, error) {
 
-	subscriptionRes.Amount = amount
+	var exchangeRateData map[string]interface{}
+	rateing, _ := raterep.RateRep()
+	err2 := json.Unmarshal(rateing.Body(), &exchangeRateData)
+	if err2 != nil {
+		return model.InitializeResponse{}, "rate getting  failed", 0, err2
+	}
+	ngnExchangeRate := exchangeRateData["rates"].(map[string]interface{})["NGN"].(float64)
+
+	subscriptionRes.Amount = amount * int64(ngnExchangeRate)
+	fmt.Println(subscriptionRes.Amount)
 
 	idHash, _ := primitive.ObjectIDFromHex(id)
 
