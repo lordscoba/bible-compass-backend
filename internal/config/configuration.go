@@ -9,11 +9,12 @@ import (
 )
 
 type Configuration struct {
-	Server   ServerConfiguration
-	Mongodb  MongodbConfiguration
-	Redis    RedisConfiguration
-	Paystack PaystackConfiguration
-	AiBible  AiBibleConfiguration
+	Server       ServerConfiguration
+	Mongodb      MongodbConfiguration
+	Redis        RedisConfiguration
+	Paystack     PaystackConfiguration
+	AiBible      AiBibleConfiguration
+	ExchangeRate ExchangeRateConfiguration
 }
 
 // Setup initialize configuration
