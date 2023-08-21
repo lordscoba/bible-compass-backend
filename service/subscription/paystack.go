@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/lordscoba/bible_compass_backend/internal/constants"
@@ -33,7 +32,7 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 	ngnExchangeRate := exchangeRateData["rates"].(map[string]interface{})["NGN"].(float64)
 
 	subscriptionRes.Amount = amount * int64(ngnExchangeRate)
-	fmt.Println(subscriptionRes.Amount)
+	// fmt.Println(subscriptionRes.Amount)
 
 	idHash, _ := primitive.ObjectIDFromHex(id)
 
@@ -91,7 +90,7 @@ func InitializePaymentOne(subscriptionRes model.InitializePaymentModel, id strin
 	}
 
 	var subscription model.Subscription
-	subscription.Amount = float64(subscriptionRes.Amount)
+	subscription.Amount = float64(amount) // used USD
 	subscription.UserID = idHash
 	subscription.Username = resultTwo.Username
 	subscription.ID = primitive.NewObjectID()
