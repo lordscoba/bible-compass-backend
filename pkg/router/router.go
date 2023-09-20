@@ -27,13 +27,16 @@ func Setup(validate *validator.Validate, logger *utility.Logger) *gin.Engine {
 	Health(r, validate, ApiVersion, logger)
 	Auth(r, validate, ApiVersion, logger)
 
+	// dashboard but no middleware
+	Keywords(r, validate, ApiVersion, logger)
+	Category(r, validate, ApiVersion, logger)
+	Verses(r, validate, ApiVersion, logger)
+
+	// needs middleware
 	r.Use(middleware.AuthMiddleware())
 	Admin(r, validate, ApiVersion, logger)
 	Profile(r, validate, ApiVersion, logger)
 	Subscription(r, validate, ApiVersion, logger)
-	Keywords(r, validate, ApiVersion, logger)
-	Category(r, validate, ApiVersion, logger)
-	Verses(r, validate, ApiVersion, logger)
 	Fav(r, validate, ApiVersion, logger)
 
 	r.NoRoute(func(c *gin.Context) {
