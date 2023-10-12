@@ -15,14 +15,16 @@ func Keywords(r *gin.Engine, validate *validator.Validate, ApiVersion string, lo
 
 	keywordsUrl := r.Group(fmt.Sprintf("/api/%v", ApiVersion))
 	{
-		keywordsUrl.POST("/admin/createkeywords/:id", keywords.CreateKeywords)       // catid
-		keywordsUrl.PATCH("/admin/updatekeywords/:id", keywords.UpdateKeywords)      //keyid
-		keywordsUrl.DELETE("/admin/deletekeywords/:id", keywords.DeleteKeywordsById) //keyid
-		// requires middleware
-		keywordsUrl.Use(middleware.AuthMiddleware())
 		keywordsUrl.GET("/admin/getkeywords/:catid", keywords.GetKeywords)    // catid
 		keywordsUrl.GET("/admin/getkeywordsid/:id", keywords.GetKeywordsById) // keyid
 		keywordsUrl.GET("/admin/keywordsinfo", keywords.KeywordsInfo)
+
+		// requires middleware
+		keywordsUrl.Use(middleware.AuthMiddleware())
+		keywordsUrl.POST("/admin/createkeywords/:id", keywords.CreateKeywords)       // catid
+		keywordsUrl.PATCH("/admin/updatekeywords/:id", keywords.UpdateKeywords)      //keyid
+		keywordsUrl.DELETE("/admin/deletekeywords/:id", keywords.DeleteKeywordsById) //keyid
+
 	}
 	return r
 }
