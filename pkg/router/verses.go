@@ -19,15 +19,15 @@ func Verses(r *gin.Engine, validate *validator.Validate, ApiVersion string, logg
 		// for AI bible
 		verseUrl.GET("/aibible", verses.AiBible) // this is "?passage=john3:16-18"
 
-		verseUrl.POST("/admin/createverse/:kid", verses.CreateVerses)
-		verseUrl.PATCH("/admin/updateverse/:kid/:Bid", verses.UpdateVerses)
-		verseUrl.DELETE("/admin/deleteverse/:kid/:Bid", verses.DeleteVersesById)
-
-		// this requires middleware
-		verseUrl.Use(middleware.AuthMiddleware())
 		verseUrl.GET("/admin/getverses/:kid", verses.GetVerses)
 		verseUrl.GET("/admin/getverse/:kid/:Bid", verses.GetVersesById)
 		verseUrl.GET("/admin/verseinfo/:kid", verses.VersesInfo)
+
+		// this requires middleware
+		verseUrl.Use(middleware.AuthMiddleware())
+		verseUrl.POST("/admin/createverse/:kid", verses.CreateVerses)
+		verseUrl.PATCH("/admin/updateverse/:kid/:Bid", verses.UpdateVerses)
+		verseUrl.DELETE("/admin/deleteverse/:kid/:Bid", verses.DeleteVersesById)
 
 	}
 	return r
