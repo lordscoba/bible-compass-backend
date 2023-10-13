@@ -23,3 +23,19 @@ type Verse[r any] struct {
 	VerseNr r      `json:"verse_nr"`
 	Verse   string `json:"verse"`
 }
+
+type RandomBibleVerseMain struct {
+	Verse RandomVerse `json:"verse"`
+}
+
+type RandomVerse struct {
+	Verse  RandomDetails `json:"details"`
+	Notice string        `json:"notice"`
+}
+
+type RandomDetails struct {
+	Text      string `json:"text"`
+	Reference string `json:"reference"`
+	Version   string `json:"version"`
+	VerseURL  string `json:"verseurl"`
+}
