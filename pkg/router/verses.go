@@ -17,6 +17,7 @@ func Verses(r *gin.Engine, validate *validator.Validate, ApiVersion string, logg
 	{
 
 		// for AI bible
+		verseUrl.GET("/randombible", verses.RandomBible)
 		verseUrl.GET("/aibible", verses.AiBible) // this is "?passage=john3:16-18"
 
 		verseUrl.GET("/admin/getverses/:kid", verses.GetVerses)

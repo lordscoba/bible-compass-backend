@@ -13,3 +13,5 @@ AiBible:
   url: "https://archived.getbible.net/json?passage="
 ExchangeRate:
   getUrl: "https://openexchangerates.org/api/latest.json?app_id=e1af8cce47ee49f3ab7e84d99978ccd5"
+RandomBible:
+  Url: "https://beta.ourmanna.com/api/v1/get?format=json&order=daily"

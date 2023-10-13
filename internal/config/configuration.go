@@ -15,6 +15,7 @@ type Configuration struct {
 	Paystack     PaystackConfiguration
 	AiBible      AiBibleConfiguration
 	ExchangeRate ExchangeRateConfiguration
+	RandomBible  RandomBibleConfiguration
 }
 
 // Setup initialize configuration

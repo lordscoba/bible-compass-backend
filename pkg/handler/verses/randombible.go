@@ -8,18 +8,16 @@ import (
 	"github.com/lordscoba/bible_compass_backend/utility"
 )
 
-func (base *Controller) AiBible(c *gin.Context) {
+func (base *Controller) RandomBible(c *gin.Context) {
 
-	var passage string = c.DefaultQuery("passage", "john3:1-10")
-
-	VerseResponse, msg, code, err := verses.AiBibleService(passage)
+	VerseResponse, msg, code, err := verses.RandomBibleService()
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", msg, err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusCreated, "bible verse found successfully", VerseResponse)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "random verse found successfully", VerseResponse)
 	c.JSON(http.StatusOK, rd)
 
 }
