@@ -25,6 +25,8 @@ func GptBible(prompt string) (*resty.Response, error) {
 		return nil, err
 	}
 
+	// fmt.Println(response.Body())
+
 	return response, nil
 
 }
